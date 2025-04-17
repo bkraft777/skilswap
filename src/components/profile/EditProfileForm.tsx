@@ -52,7 +52,7 @@ const EditProfileForm = () => {
       bio: '',
       skills: [],
       interests: [],
-      availability_status: 'available',
+      availability_status: 'available', // Explicitly typed
     },
   });
 
@@ -104,7 +104,7 @@ const EditProfileForm = () => {
           bio: values.bio,
           skills: values.skills,
           interests: values.interests,
-          availability_status: values.availability_status,
+          availability_status: values.availability_status || 'available', // Ensure type safety
         })
         .eq('id', user.id);
 
@@ -205,6 +205,7 @@ const EditProfileForm = () => {
                 <FormControl>
                   <select 
                     {...field} 
+                    value={field.value || 'available'} // Ensure a valid value is always selected
                     className="w-full px-3 py-2 border rounded-md"
                   >
                     <option value="available">Available</option>
