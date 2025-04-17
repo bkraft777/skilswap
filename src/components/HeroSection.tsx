@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 
 const HeroSection = () => {
   return (
@@ -25,10 +24,7 @@ const HeroSection = () => {
             <p className="text-sm text-gray-500 mb-8 text-center md:text-left">
               Beta Version: We're testing our micro-learning platform while developing SlikCoin, the future native cryptocurrency for SkilSwap's ecosystem.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <Button className="button-primary">Join Beta</Button>
-              <Button className="button-secondary">Learn More</Button>
-            </div>
+            {/* Buttons have been removed as requested */}
           </div>
           <div className="md:w-1/2 flex justify-center">
             <div className="relative w-full max-w-md">
