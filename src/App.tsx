@@ -11,6 +11,7 @@ import Skills from "./pages/Skills";
 import Community from "./pages/Community";
 import Login from "./pages/Login";
 import Auth from "./pages/Auth";
+import EditProfile from "./pages/EditProfile"; // New import
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/community" element={<Community />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/edit-profile" element={<EditProfile />} /> {/* New route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

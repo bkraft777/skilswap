@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -66,7 +65,12 @@ const Navbar = () => {
             <Link to="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</Link>
             <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
             {user ? (
-              <Button onClick={handleLogout}>Sign Out</Button>
+              <>
+                <Link to="/edit-profile" className="font-medium hover:text-silswap-pink transition-colors">
+                  Edit Profile
+                </Link>
+                <Button onClick={handleLogout}>Sign Out</Button>
+              </>
             ) : (
               <Button onClick={() => navigate('/auth')} className="button-primary">
                 Join Now
@@ -120,7 +124,15 @@ const Navbar = () => {
             </Link>
             <div className="px-3 py-2">
               {user ? (
-                <Button onClick={handleLogout} className="w-full">Sign Out</Button>
+                <div className="px-3 py-2 space-y-2">
+                  <Link 
+                    to="/edit-profile" 
+                    className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
+                  >
+                    Edit Profile
+                  </Link>
+                  <Button onClick={handleLogout} className="w-full">Sign Out</Button>
+                </div>
               ) : (
                 <Button 
                   onClick={() => navigate('/auth')}
