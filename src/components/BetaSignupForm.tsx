@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { 
   AlertDialog,
   AlertDialogTrigger,
@@ -12,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
-import { Music, Code, User, UserRound, Mail } from 'lucide-react';
+import { Music, Code, User, UserRound, Mail, Loader2 } from 'lucide-react';
 import { z } from 'zod';
 
 // Define validation schema
@@ -38,6 +38,7 @@ const BetaSignupForm = () => {
   const [role, setRole] = useState<'learner' | 'teacher'>('learner');
   const [interest, setInterest] = useState<'coding' | 'music'>('coding');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -60,10 +61,12 @@ const BetaSignupForm = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     if (!validateForm()) {
+      setIsSubmitting(false);
       toast({
         title: "Validation Error",
         description: "Please check the form for errors",
@@ -72,34 +75,48 @@ const BetaSignupForm = () => {
       return;
     }
 
-    const existingSignups = JSON.parse(localStorage.getItem('betaSignups') || '[]');
-    
-    if (existingSignups.some((s: BetaSignup) => s.email === email)) {
-      setErrors({ email: "This email has already been registered" });
+    try {
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const existingSignups = JSON.parse(localStorage.getItem('betaSignups') || '[]');
+      
+      if (existingSignups.some((s: BetaSignup) => s.email === email)) {
+        setErrors({ email: "This email has already been registered" });
+        toast({
+          title: "Already Registered",
+          description: "This email has already been registered for the beta.",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const signup: BetaSignup = {
+        email,
+        role,
+        interest,
+        date: new Date().toISOString()
+      };
+
+      localStorage.setItem('betaSignups', JSON.stringify([...existingSignups, signup]));
+
       toast({
-        title: "Already Registered",
-        description: "This email has already been registered for the beta.",
+        title: "Registration Successful! 🎉",
+        description: "Thank you for joining the SkilSwap beta. We'll be in touch soon!",
+      });
+
+      setEmail('');
+      setIsOpen(false);
+    } catch (error) {
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later.",
         variant: "destructive"
       });
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-
-    const signup: BetaSignup = {
-      email,
-      role,
-      interest,
-      date: new Date().toISOString()
-    };
-
-    localStorage.setItem('betaSignups', JSON.stringify([...existingSignups, signup]));
-
-    toast({
-      title: "Registration Successful!",
-      description: "Thank you for joining the SkilSwap beta. We'll be in touch soon!",
-    });
-
-    setEmail('');
-    setIsOpen(false);
   };
 
   return (
@@ -117,18 +134,26 @@ const BetaSignupForm = () => {
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Mail className={`absolute left-3 top-2.5 h-5 w-5 ${errors.email ? 'text-destructive' : 'text-gray-400'}`} />
               <Input
                 id="email"
                 type="email"
                 placeholder="your@email.com"
-                className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                className={`pl-10 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) {
+                    const newErrors = { ...errors };
+                    delete newErrors.email;
+                    setErrors(newErrors);
+                  }
+                }}
+                disabled={isSubmitting}
                 required
               />
               {errors.email && (
-                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                <p className="text-sm text-destructive mt-1">{errors.email}</p>
               )}
             </div>
           </div>
@@ -139,6 +164,7 @@ const BetaSignupForm = () => {
               value={role} 
               onValueChange={(value: 'learner' | 'teacher') => setRole(value)} 
               className="flex gap-4"
+              disabled={isSubmitting}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="learner" id="learner" />
@@ -153,9 +179,6 @@ const BetaSignupForm = () => {
                 </Label>
               </div>
             </RadioGroup>
-            {errors.role && (
-              <p className="text-sm text-red-500 mt-1">{errors.role}</p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -164,6 +187,7 @@ const BetaSignupForm = () => {
               value={interest} 
               onValueChange={(value: 'coding' | 'music') => setInterest(value)} 
               className="flex gap-4"
+              disabled={isSubmitting}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="coding" id="coding" />
@@ -178,12 +202,22 @@ const BetaSignupForm = () => {
                 </Label>
               </div>
             </RadioGroup>
-            {errors.interest && (
-              <p className="text-sm text-red-500 mt-1">{errors.interest}</p>
-            )}
           </div>
 
-          <Button type="submit" className="w-full">Submit</Button>
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              'Submit'
+            )}
+          </Button>
         </form>
       </AlertDialogContent>
     </AlertDialog>
