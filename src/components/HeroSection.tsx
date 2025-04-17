@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 const HeroSection = () => {
@@ -29,9 +30,9 @@ const HeroSection = () => {
             <div className="relative w-full max-w-md">
               <div className="absolute top-0 left-0 w-full h-full gradient-circle opacity-30 animate-pulse"></div>
               <img 
-                src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" 
-                alt="People sharing skills" 
-                className="relative z-10 rounded-2xl shadow-xl w-full animate-fade-in"
+                src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80" 
+                alt="Quick learning with technology" 
+                className="relative z-10 rounded-2xl shadow-xl w-full animate-fade-in object-cover"
               />
             </div>
           </div>
