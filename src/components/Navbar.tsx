@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,21 +18,21 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <a 
-              href="/" 
+            <Link 
+              to="/" 
               className="flex items-center"
             >
               <div className="gradient-circle w-10 h-10"></div>
               <span className="ml-2 text-2xl font-poppins font-bold">SkilSwap.io</span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/" className="font-medium hover:text-silswap-pink transition-colors">Home</a>
-            <a href="/how-it-works" className="font-medium hover:text-silswap-pink transition-colors">How It Works</a>
-            <a href="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</a>
-            <a href="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</a>
+            <Link to="/" className="font-medium hover:text-silswap-pink transition-colors">Home</Link>
+            <Link to="/how-it-works" className="font-medium hover:text-silswap-pink transition-colors">How It Works</Link>
+            <Link to="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</Link>
+            <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
             <Button 
               className="button-primary"
               onClick={() => navigate('/login')}
@@ -60,30 +61,30 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a
-              href="/"
+            <Link
+              to="/"
               className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
             >
               Home
-            </a>
-            <a
-              href="/how-it-works"
+            </Link>
+            <Link
+              to="/how-it-works"
               className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
             >
               How It Works
-            </a>
-            <a
-              href="/skills"
+            </Link>
+            <Link
+              to="/skills"
               className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
             >
               Skills
-            </a>
-            <a
-              href="/community"
+            </Link>
+            <Link
+              to="/community"
               className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
             >
               Community
-            </a>
+            </Link>
             <div className="px-3 py-2">
               <Button 
                 className="button-primary w-full"
