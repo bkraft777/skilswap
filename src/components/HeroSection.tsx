@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const HeroSection = () => {
@@ -25,7 +24,6 @@ const HeroSection = () => {
             <p className="text-sm text-gray-500 mb-8 text-center md:text-left">
               Beta Version: We're testing our micro-learning platform while developing SkiLCoin, the future native cryptocurrency for SkilSwap's ecosystem.
             </p>
-            {/* Buttons have been removed as requested */}
           </div>
           <div className="md:w-1/2 flex justify-center">
             <div className="relative w-full max-w-md">
