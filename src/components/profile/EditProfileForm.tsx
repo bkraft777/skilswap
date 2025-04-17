@@ -1,75 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import React, { useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { 
-  CircleCheck, 
-  MessageSquare, 
-  CircleX, 
-  WifiOff 
-} from 'lucide-react';
-
-// Define predefined skills and interests
-const SKILLS = [
-  'Web Development', 'Mobile Development', 'Data Science', 
-  'Design', 'Marketing', 'Writing', 'Photography'
-];
-
-const INTERESTS = [
-  'Technology', 'Art', 'Music', 'Sports', 'Travel', 
-  'Entrepreneurship', 'Personal Development'
-];
-
-// Define valid availability status options
-const AVAILABILITY_STATUSES = ['live', 'messaging', 'busy', 'offline'] as const;
-type AvailabilityStatus = typeof AVAILABILITY_STATUSES[number];
-
-// Helper function to validate availability status
-const isValidAvailabilityStatus = (status: string): status is AvailabilityStatus => {
-  return AVAILABILITY_STATUSES.includes(status as AvailabilityStatus);
-};
-
-// Profile form schema
-const profileSchema = z.object({
-  username: z.string().min(2, 'Username must be at least 2 characters').optional(),
-  bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
-  skills: z.array(z.string()).optional(),
-  interests: z.array(z.string()).optional(),
-  availability_status: z.enum(AVAILABILITY_STATUSES).optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
+import { Form } from '@/components/ui/form';
+import { ProfileFormFields } from './ProfileFormFields';
+import { useProfileForm } from '@/hooks/useProfileForm';
 
 const EditProfileForm = () => {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [user, setUser] = React.useState<any>(null);
   const { toast } = useToast();
-
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      username: '',
-      bio: '',
-      skills: [],
-      interests: [],
-      availability_status: 'messaging',
-    },
-  });
+  const form = useProfileForm();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -77,7 +18,6 @@ const EditProfileForm = () => {
       if (user) {
         setUser(user);
         
-        // Fetch profile data
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -85,20 +25,12 @@ const EditProfileForm = () => {
           .single();
 
         if (data) {
-          setProfile(data);
-          
-          // Ensure availability_status is valid
-          let status = data.availability_status || 'messaging';
-          if (!isValidAvailabilityStatus(status)) {
-            status = 'messaging'; // Fallback to default if invalid
-          }
-
           form.reset({
             username: data.username || '',
             bio: data.bio || '',
             skills: data.skills || [],
             interests: data.interests || [],
-            availability_status: status as AvailabilityStatus,
+            availability_status: data.availability_status || 'messaging',
           });
         }
 
@@ -115,7 +47,7 @@ const EditProfileForm = () => {
     fetchUserProfile();
   }, []);
 
-  const onSubmit = async (values: ProfileFormValues) => {
+  const onSubmit = async (values: any) => {
     if (!user) return;
 
     try {
@@ -150,135 +82,7 @@ const EditProfileForm = () => {
       <h2 className="text-2xl font-bold mb-6 text-center">Edit Profile</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="Choose a username" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="bio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bio</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Tell us about yourself" 
-                    className="resize-y"
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="skills"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Skills</FormLabel>
-                <FormControl>
-                  <MultiSelect 
-                    options={SKILLS}
-                    selectedOptions={field.value || []}
-                    onChange={(selected) => field.onChange(selected)}
-                    placeholder="Select your skills"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="interests"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Interests</FormLabel>
-                <FormControl>
-                  <MultiSelect 
-                    options={INTERESTS}
-                    selectedOptions={field.value || []}
-                    onChange={(selected) => field.onChange(selected)}
-                    placeholder="Select your interests"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="availability_status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Availability</FormLabel>
-                <FormControl>
-                  <select 
-                    {...field} 
-                    value={field.value || 'messaging'}
-                    className="w-full px-3 py-2 border rounded-md"
-                  >
-                    <option value="live" className="flex items-center">
-                      Available for Live Session
-                    </option>
-                    <option value="messaging">
-                      Available for Messaging
-                    </option>
-                    <option value="busy">
-                      Busy
-                    </option>
-                    <option value="offline">
-                      Offline
-                    </option>
-                  </select>
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          {/* Visual indicator for current availability status */}
-          <div className="mt-2 flex items-center">
-            <span className="text-sm text-gray-500 mr-2">Current status:</span>
-            <div className="flex items-center">
-              {form.watch('availability_status') === 'live' && (
-                <>
-                  <CircleCheck className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-green-600">Available for Live Session</span>
-                </>
-              )}
-              {form.watch('availability_status') === 'messaging' && (
-                <>
-                  <MessageSquare className="h-4 w-4 text-blue-500 mr-1" />
-                  <span className="text-blue-600">Available for Messaging</span>
-                </>
-              )}
-              {form.watch('availability_status') === 'busy' && (
-                <>
-                  <CircleX className="h-4 w-4 text-orange-500 mr-1" />
-                  <span className="text-orange-600">Busy</span>
-                </>
-              )}
-              {form.watch('availability_status') === 'offline' && (
-                <>
-                  <WifiOff className="h-4 w-4 text-gray-500 mr-1" />
-                  <span className="text-gray-600">Offline</span>
-                </>
-              )}
-            </div>
-          </div>
-
+          <ProfileFormFields form={form} />
           <Button type="submit" className="w-full">Update Profile</Button>
         </form>
       </Form>
