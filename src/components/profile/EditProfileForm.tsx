@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,7 +34,7 @@ const profileSchema = z.object({
   bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
   skills: z.array(z.string()).optional(),
   interests: z.array(z.string()).optional(),
-  availability_status: z.enum(['available', 'busy', 'offline']).optional(),
+  availability_status: z.enum(['live', 'messaging', 'busy', 'offline']).optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -52,7 +51,7 @@ const EditProfileForm = () => {
       bio: '',
       skills: [],
       interests: [],
-      availability_status: 'available', // Explicitly typed
+      availability_status: 'messaging', // Updated default
     },
   });
 
@@ -76,7 +75,7 @@ const EditProfileForm = () => {
             bio: data.bio || '',
             skills: data.skills || [],
             interests: data.interests || [],
-            availability_status: data.availability_status || 'available',
+            availability_status: data.availability_status || 'messaging',
           });
         }
 
@@ -104,7 +103,7 @@ const EditProfileForm = () => {
           bio: values.bio,
           skills: values.skills,
           interests: values.interests,
-          availability_status: values.availability_status || 'available', // Ensure type safety
+          availability_status: values.availability_status || 'messaging', // Updated fallback
         })
         .eq('id', user.id);
 
@@ -205,10 +204,11 @@ const EditProfileForm = () => {
                 <FormControl>
                   <select 
                     {...field} 
-                    value={field.value || 'available'} // Ensure a valid value is always selected
+                    value={field.value || 'messaging'} // Ensure a valid value is always selected
                     className="w-full px-3 py-2 border rounded-md"
                   >
-                    <option value="available">Available</option>
+                    <option value="live">Live</option>
+                    <option value="messaging">Available for Messaging</option>
                     <option value="busy">Busy</option>
                     <option value="offline">Offline</option>
                   </select>
