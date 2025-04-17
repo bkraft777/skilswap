@@ -1,7 +1,7 @@
 
 import { UseFormReturn } from 'react-hook-form';
 import { ProfileFormValues } from '@/hooks/useProfileForm';
-import { SKILLS, INTERESTS, AVAILABILITY_STATUSES } from '@/lib/constants';
+import { SKILLS, INTERESTS, AVAILABILITY_STATUSES, AvailabilityStatus } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MultiSelect } from '@/components/ui/multi-select';
@@ -61,7 +61,7 @@ export const ProfileFormFields = ({ form }: ProfileFormFieldsProps) => {
             <FormLabel>Skills</FormLabel>
             <FormControl>
               <MultiSelect 
-                options={SKILLS}
+                options={[...SKILLS]}
                 selectedOptions={field.value || []}
                 onChange={(selected) => field.onChange(selected)}
                 placeholder="Select your skills"
@@ -79,7 +79,7 @@ export const ProfileFormFields = ({ form }: ProfileFormFieldsProps) => {
             <FormLabel>Interests</FormLabel>
             <FormControl>
               <MultiSelect 
-                options={INTERESTS}
+                options={[...INTERESTS]}
                 selectedOptions={field.value || []}
                 onChange={(selected) => field.onChange(selected)}
                 placeholder="Select your interests"

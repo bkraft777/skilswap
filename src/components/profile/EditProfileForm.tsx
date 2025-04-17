@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { Form } from '@/components/ui/form';
 import { ProfileFormFields } from './ProfileFormFields';
-import { useProfileForm } from '@/hooks/useProfileForm';
+import { useProfileForm, ProfileFormValues } from '@/hooks/useProfileForm';
+import { AvailabilityStatus } from '@/lib/constants';
 
 const EditProfileForm = () => {
   const [user, setUser] = React.useState<any>(null);
@@ -25,12 +26,15 @@ const EditProfileForm = () => {
           .single();
 
         if (data) {
+          // Ensure availability_status is a valid enum value
+          const availability = data.availability_status as AvailabilityStatus || 'messaging';
+          
           form.reset({
             username: data.username || '',
             bio: data.bio || '',
             skills: data.skills || [],
             interests: data.interests || [],
-            availability_status: data.availability_status || 'messaging',
+            availability_status: availability,
           });
         }
 
@@ -47,7 +51,7 @@ const EditProfileForm = () => {
     fetchUserProfile();
   }, []);
 
-  const onSubmit = async (values: any) => {
+  const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
 
     try {
