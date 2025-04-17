@@ -1,11 +1,16 @@
 
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { 
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
 import { Music, Code, User, UserRound, Mail } from 'lucide-react';
 
 const BetaSignupForm = () => {
@@ -26,16 +31,16 @@ Interest: ${interest}
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button className="bg-white text-silswap-pink hover:bg-gray-100 px-8 py-6 text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
           Join SkilSwap Beta
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center mb-4">Join SkilSwap Beta</DialogTitle>
-        </DialogHeader>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="sm:max-w-[425px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-2xl font-bold text-center mb-4">Join SkilSwap Beta</AlertDialogTitle>
+        </AlertDialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -91,8 +96,8 @@ Interest: ${interest}
 
           <Button type="submit" className="w-full">Submit</Button>
         </form>
-      </DialogContent>
-    </Dialog>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
