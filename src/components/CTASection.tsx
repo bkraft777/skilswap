@@ -13,7 +13,7 @@ const CTASection = () => {
           Join thousands of people worldwide who are already sharing knowledge and building connections through skill swapping.
         </p>
         <Button className="bg-white text-silswap-pink hover:bg-gray-100 px-8 py-6 text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
-          Join SilSwap Today
+          Join SkilSwap Today
         </Button>
       </div>
     </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,7 @@ const Navbar = () => {
               className="flex items-center"
             >
               <div className="gradient-circle w-10 h-10"></div>
-              <span className="ml-2 text-2xl font-poppins font-bold">SilSwap.io</span>
+              <span className="ml-2 text-2xl font-poppins font-bold">SkilSwap.io</span>
             </a>
           </div>
 

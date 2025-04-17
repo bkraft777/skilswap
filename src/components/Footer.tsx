@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Instagram, Twitter, Linkedin, Facebook } from 'lucide-react';
 
@@ -10,7 +9,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center mb-4">
               <div className="gradient-circle w-10 h-10"></div>
-              <span className="ml-2 text-xl font-poppins font-bold">SilSwap.io</span>
+              <span className="ml-2 text-xl font-poppins font-bold">SkilSwap.io</span>
             </div>
             <p className="text-gray-600 mb-4">
               Swap Skills, Share Love. Connect with people worldwide and exchange knowledge for free.
@@ -74,7 +73,7 @@ const Footer = () => {
         
         <div className="border-t border-gray-200 pt-8">
           <p className="text-center text-gray-500">
-            &copy; {new Date().getFullYear()} SilSwap.io. All rights reserved.
+            &copy; {new Date().getFullYear()} SkilSwap.io. All rights reserved.
           </p>
         </div>
       </div>
