@@ -28,13 +28,22 @@ const INTERESTS = [
   'Entrepreneurship', 'Personal Development'
 ];
 
+// Define valid availability status options
+const AVAILABILITY_STATUSES = ['live', 'messaging', 'busy', 'offline'] as const;
+type AvailabilityStatus = typeof AVAILABILITY_STATUSES[number];
+
+// Helper function to validate availability status
+const isValidAvailabilityStatus = (status: string): status is AvailabilityStatus => {
+  return AVAILABILITY_STATUSES.includes(status as AvailabilityStatus);
+};
+
 // Profile form schema
 const profileSchema = z.object({
   username: z.string().min(2, 'Username must be at least 2 characters').optional(),
   bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
   skills: z.array(z.string()).optional(),
   interests: z.array(z.string()).optional(),
-  availability_status: z.enum(['live', 'messaging', 'busy', 'offline']).optional(),
+  availability_status: z.enum(AVAILABILITY_STATUSES).optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -70,12 +79,19 @@ const EditProfileForm = () => {
 
         if (data) {
           setProfile(data);
+          
+          // Ensure availability_status is valid
+          let status = data.availability_status || 'messaging';
+          if (!isValidAvailabilityStatus(status)) {
+            status = 'messaging'; // Fallback to default if invalid
+          }
+
           form.reset({
             username: data.username || '',
             bio: data.bio || '',
             skills: data.skills || [],
             interests: data.interests || [],
-            availability_status: data.availability_status || 'messaging',
+            availability_status: status as AvailabilityStatus,
           });
         }
 
