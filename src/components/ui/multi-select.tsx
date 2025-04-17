@@ -3,29 +3,29 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface MultiSelectProps {
-  options: string[];
-  selectedOptions: string[];
-  onChange: (selectedOptions: string[]) => void;
+interface MultiSelectProps<T extends string> {
+  options: readonly T[] | T[];
+  selectedOptions: T[];
+  onChange: (selectedOptions: T[]) => void;
   placeholder?: string;
 }
 
-export const MultiSelect: React.FC<MultiSelectProps> = ({ 
+export function MultiSelect<T extends string>({ 
   options, 
   selectedOptions, 
   onChange, 
   placeholder = "Select options" 
-}) => {
+}: MultiSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleOption = (option: string) => {
+  const toggleOption = (option: T) => {
     const newSelectedOptions = selectedOptions.includes(option)
       ? selectedOptions.filter(selected => selected !== option)
       : [...selectedOptions, option];
     onChange(newSelectedOptions);
   };
 
-  const removeOption = (option: string) => {
+  const removeOption = (option: T) => {
     onChange(selectedOptions.filter(selected => selected !== option));
   };
 
@@ -57,7 +57,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       </div>
       {isOpen && (
         <div className="absolute z-10 w-full border rounded-md mt-1 bg-white shadow-lg max-h-60 overflow-y-auto">
-          {options.map(option => (
+          {Array.from(options).map(option => (
             <div
               key={option}
               onClick={() => toggleOption(option)}
@@ -73,4 +73,4 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       )}
     </div>
   );
-};
+}

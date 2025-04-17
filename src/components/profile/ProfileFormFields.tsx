@@ -61,7 +61,7 @@ export const ProfileFormFields = ({ form }: ProfileFormFieldsProps) => {
             <FormLabel>Skills</FormLabel>
             <FormControl>
               <MultiSelect 
-                options={[...SKILLS]}
+                options={Array.from(SKILLS)}
                 selectedOptions={field.value || []}
                 onChange={(selected) => field.onChange(selected)}
                 placeholder="Select your skills"
@@ -79,7 +79,7 @@ export const ProfileFormFields = ({ form }: ProfileFormFieldsProps) => {
             <FormLabel>Interests</FormLabel>
             <FormControl>
               <MultiSelect 
-                options={[...INTERESTS]}
+                options={Array.from(INTERESTS)}
                 selectedOptions={field.value || []}
                 onChange={(selected) => field.onChange(selected)}
                 placeholder="Select your interests"

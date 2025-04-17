@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Form } from '@/components/ui/form';
 import { ProfileFormFields } from './ProfileFormFields';
 import { useProfileForm, ProfileFormValues } from '@/hooks/useProfileForm';
-import { AvailabilityStatus } from '@/lib/constants';
+import { AvailabilityStatus, Skill, Interest, SKILLS, INTERESTS } from '@/lib/constants';
 
 const EditProfileForm = () => {
   const [user, setUser] = React.useState<any>(null);
@@ -29,11 +29,24 @@ const EditProfileForm = () => {
           // Ensure availability_status is a valid enum value
           const availability = data.availability_status as AvailabilityStatus || 'messaging';
           
+          // Filter and validate skills and interests arrays to ensure they match our defined types
+          const validSkills = Array.isArray(data.skills) 
+            ? data.skills.filter((skill): skill is Skill => 
+                SKILLS.includes(skill as Skill)
+              ) 
+            : [];
+            
+          const validInterests = Array.isArray(data.interests) 
+            ? data.interests.filter((interest): interest is Interest => 
+                INTERESTS.includes(interest as Interest)
+              ) 
+            : [];
+          
           form.reset({
             username: data.username || '',
             bio: data.bio || '',
-            skills: data.skills || [],
-            interests: data.interests || [],
+            skills: validSkills,
+            interests: validInterests,
             availability_status: availability,
           });
         }
