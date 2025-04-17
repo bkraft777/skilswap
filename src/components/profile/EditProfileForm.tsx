@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -49,8 +50,8 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const EditProfileForm = () => {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const { toast } = useToast();
 
   const form = useForm<ProfileFormValues>({
@@ -60,7 +61,7 @@ const EditProfileForm = () => {
       bio: '',
       skills: [],
       interests: [],
-      availability_status: 'messaging', // Updated default
+      availability_status: 'messaging',
     },
   });
 
@@ -119,7 +120,7 @@ const EditProfileForm = () => {
           bio: values.bio,
           skills: values.skills,
           interests: values.interests,
-          availability_status: values.availability_status || 'messaging', // Updated fallback
+          availability_status: values.availability_status || 'messaging',
         })
         .eq('id', user.id);
 
@@ -184,7 +185,7 @@ const EditProfileForm = () => {
                 <FormControl>
                   <MultiSelect 
                     options={SKILLS}
-                    selectedOptions={field.value}
+                    selectedOptions={field.value || []}
                     onChange={(selected) => field.onChange(selected)}
                     placeholder="Select your skills"
                   />
@@ -202,7 +203,7 @@ const EditProfileForm = () => {
                 <FormControl>
                   <MultiSelect 
                     options={INTERESTS}
-                    selectedOptions={field.value}
+                    selectedOptions={field.value || []}
                     onChange={(selected) => field.onChange(selected)}
                     placeholder="Select your interests"
                   />
@@ -220,10 +221,10 @@ const EditProfileForm = () => {
                 <FormControl>
                   <select 
                     {...field} 
-                    value={field.value || 'messaging'} // Ensure a valid value is always selected
+                    value={field.value || 'messaging'}
                     className="w-full px-3 py-2 border rounded-md"
                   >
-                    <option value="live">Live</option>
+                    <option value="live">Available for Live Session</option>
                     <option value="messaging">Available for Messaging</option>
                     <option value="busy">Busy</option>
                     <option value="offline">Offline</option>
