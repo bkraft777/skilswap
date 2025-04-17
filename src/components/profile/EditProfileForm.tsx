@@ -17,6 +17,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { 
+  CircleCheck, 
+  MessageSquare, 
+  CircleX, 
+  WifiOff 
+} from 'lucide-react';
 
 // Define predefined skills and interests
 const SKILLS = [
@@ -224,15 +230,54 @@ const EditProfileForm = () => {
                     value={field.value || 'messaging'}
                     className="w-full px-3 py-2 border rounded-md"
                   >
-                    <option value="live">Available for Live Session</option>
-                    <option value="messaging">Available for Messaging</option>
-                    <option value="busy">Busy</option>
-                    <option value="offline">Offline</option>
+                    <option value="live" className="flex items-center">
+                      Available for Live Session
+                    </option>
+                    <option value="messaging">
+                      Available for Messaging
+                    </option>
+                    <option value="busy">
+                      Busy
+                    </option>
+                    <option value="offline">
+                      Offline
+                    </option>
                   </select>
                 </FormControl>
               </FormItem>
             )}
           />
+
+          {/* Visual indicator for current availability status */}
+          <div className="mt-2 flex items-center">
+            <span className="text-sm text-gray-500 mr-2">Current status:</span>
+            <div className="flex items-center">
+              {form.watch('availability_status') === 'live' && (
+                <>
+                  <CircleCheck className="h-4 w-4 text-green-500 mr-1" />
+                  <span className="text-green-600">Available for Live Session</span>
+                </>
+              )}
+              {form.watch('availability_status') === 'messaging' && (
+                <>
+                  <MessageSquare className="h-4 w-4 text-blue-500 mr-1" />
+                  <span className="text-blue-600">Available for Messaging</span>
+                </>
+              )}
+              {form.watch('availability_status') === 'busy' && (
+                <>
+                  <CircleX className="h-4 w-4 text-orange-500 mr-1" />
+                  <span className="text-orange-600">Busy</span>
+                </>
+              )}
+              {form.watch('availability_status') === 'offline' && (
+                <>
+                  <WifiOff className="h-4 w-4 text-gray-500 mr-1" />
+                  <span className="text-gray-600">Offline</span>
+                </>
+              )}
+            </div>
+          </div>
 
           <Button type="submit" className="w-full">Update Profile</Button>
         </form>
