@@ -4,7 +4,7 @@ import BetaSignupForm from './BetaSignupForm';
 
 const CTASection = () => {
   return (
-    <div className="bg-gradient-to-r from-silswap-pink to-silswap-green py-20">
+    <div className="bg-gray-900 py-20">
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-3xl md:text-4xl font-poppins font-bold mb-6 text-white">
           Ready to Start Micro Learning?
