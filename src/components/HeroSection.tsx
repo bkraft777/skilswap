@@ -13,11 +13,12 @@ const HeroSection = () => {
           <div className="md:w-1/2 mb-10 md:mb-0 md:pr-8">
             <h1 className="tagline mb-6 text-center md:text-left">
               <span className="bg-gradient-to-r from-silswap-pink to-silswap-green bg-clip-text text-transparent">
-                5-Minute Skills,
+                5-Minute Micro Learning Sessions
               </span>
-              <br />
-              Micro Learning.
             </h1>
+            <h2 className="text-lg md:text-xl text-gray-600 mb-4 text-center md:text-left">
+              When you need just 5 minutes of someone's help, when you're stuck on a task, or are just wanting a quick lesson.
+            </h2>
             <p className="text-lg md:text-xl text-gray-600 mb-4 text-center md:text-left">
               Join our beta community where people exchange quick 5-minute online lessons. Learn bite-sized skills from others, and teach what you know in return.
             </p>
