@@ -22,7 +22,7 @@ const HeroSection = () => {
               Join our beta community where people exchange quick 5-minute online lessons. Learn bite-sized skills from others, and teach what you know in return.
             </p>
             <p className="text-sm text-gray-500 mb-8 text-center md:text-left">
-              Beta Version: We're testing our micro-learning platform while developing SlikCoin, the future native cryptocurrency for SkilSwap's ecosystem.
+              Beta Version: We're testing our micro-learning platform while developing SkiLCoin, the future native cryptocurrency for SkilSwap's ecosystem.
             </p>
             {/* Buttons have been removed as requested */}
           </div>
