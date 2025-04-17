@@ -1,9 +1,5 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from "@/hooks/use-toast";
 import { 
   AlertDialog,
@@ -12,8 +8,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog';
-import { Music, Code, User, UserRound, Mail, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
+import EmailInput from './beta-signup/EmailInput';
+import RoleSelection from './beta-signup/RoleSelection';
+import InterestSelection from './beta-signup/InterestSelection';
 
 // Define validation schema
 const signupSchema = z.object({
@@ -58,6 +57,15 @@ const BetaSignupForm = () => {
         setErrors(newErrors);
       }
       return false;
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (errors.email) {
+      const newErrors = { ...errors };
+      delete newErrors.email;
+      setErrors(newErrors);
     }
   };
 
@@ -128,81 +136,29 @@ const BetaSignupForm = () => {
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[425px]">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-2xl font-bold text-center mb-4">Join SkilSwap Beta</AlertDialogTitle>
+          <AlertDialogTitle className="text-2xl font-bold text-center mb-4">
+            Join SkilSwap Beta
+          </AlertDialogTitle>
         </AlertDialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="relative">
-              <Mail className={`absolute left-3 top-2.5 h-5 w-5 ${errors.email ? 'text-destructive' : 'text-gray-400'}`} />
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                className={`pl-10 ${errors.email ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (errors.email) {
-                    const newErrors = { ...errors };
-                    delete newErrors.email;
-                    setErrors(newErrors);
-                  }
-                }}
-                disabled={isSubmitting}
-                required
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive mt-1">{errors.email}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>I want to be a</Label>
-            <RadioGroup 
-              value={role} 
-              onValueChange={(value: 'learner' | 'teacher') => setRole(value)} 
-              className="flex gap-4"
-              disabled={isSubmitting}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="learner" id="learner" />
-                <Label htmlFor="learner" className="flex items-center gap-2">
-                  <User className="h-4 w-4" /> Learner
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="teacher" id="teacher" />
-                <Label htmlFor="teacher" className="flex items-center gap-2">
-                  <UserRound className="h-4 w-4" /> Teacher
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div className="space-y-2">
-            <Label>I'm interested in</Label>
-            <RadioGroup 
-              value={interest} 
-              onValueChange={(value: 'coding' | 'music') => setInterest(value)} 
-              className="flex gap-4"
-              disabled={isSubmitting}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="coding" id="coding" />
-                <Label htmlFor="coding" className="flex items-center gap-2">
-                  <Code className="h-4 w-4" /> Coding
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="music" id="music" />
-                <Label htmlFor="music" className="flex items-center gap-2">
-                  <Music className="h-4 w-4" /> Music
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
+          <EmailInput 
+            email={email}
+            onChange={handleEmailChange}
+            error={errors.email}
+            disabled={isSubmitting}
+          />
+          
+          <RoleSelection
+            role={role}
+            onRoleChange={setRole}
+            disabled={isSubmitting}
+          />
+          
+          <InterestSelection
+            interest={interest}
+            onInterestChange={setInterest}
+            disabled={isSubmitting}
+          />
 
           <Button 
             type="submit" 
