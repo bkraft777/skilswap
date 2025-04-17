@@ -16,17 +16,20 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
+// Define a schema that ensures email and password are always required strings
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
+
+type FormValues = z.infer<typeof formSchema>;
 
 const AuthForm = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSignUp, setIsSignUp] = React.useState(false);
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
@@ -34,18 +37,26 @@ const AuthForm = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp(values);
+        // Since our form validation ensures email and password are non-empty strings,
+        // we can safely pass values to Supabase
+        const { error } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+        });
         if (error) throw error;
         toast({
           title: "Success!",
           description: "Please check your email to confirm your account.",
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword(values);
+        const { error } = await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        });
         if (error) throw error;
       }
     } catch (error: any) {
