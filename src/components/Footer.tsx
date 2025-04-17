@@ -14,17 +14,33 @@ const Footer = () => {
             <p className="text-gray-600 mb-4">
               Swap Skills, Share Love. Connect with people worldwide and exchange knowledge for free.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-500 hover:text-silswap-pink transition-colors">
+            <div className="flex space-x-6">
+              <a 
+                href="#" 
+                className="text-gray-500 hover:text-[#E4405F] transform hover:scale-110 transition-all duration-300"
+                aria-label="Instagram"
+              >
                 <Instagram size={24} />
               </a>
-              <a href="#" className="text-gray-500 hover:text-silswap-pink transition-colors">
+              <a 
+                href="#" 
+                className="text-gray-500 hover:text-[#1DA1F2] transform hover:scale-110 transition-all duration-300"
+                aria-label="Twitter"
+              >
                 <Twitter size={24} />
               </a>
-              <a href="#" className="text-gray-500 hover:text-silswap-pink transition-colors">
+              <a 
+                href="#" 
+                className="text-gray-500 hover:text-[#0A66C2] transform hover:scale-110 transition-all duration-300"
+                aria-label="LinkedIn"
+              >
                 <Linkedin size={24} />
               </a>
-              <a href="#" className="text-gray-500 hover:text-silswap-pink transition-colors">
+              <a 
+                href="#" 
+                className="text-gray-500 hover:text-[#1877F2] transform hover:scale-110 transition-all duration-300"
+                aria-label="Facebook"
+              >
                 <Facebook size={24} />
               </a>
             </div>
