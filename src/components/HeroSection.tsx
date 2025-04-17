@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -13,16 +14,19 @@ const HeroSection = () => {
           <div className="md:w-1/2 mb-10 md:mb-0 md:pr-8">
             <h1 className="tagline mb-6 text-center md:text-left">
               <span className="bg-gradient-to-r from-silswap-pink to-silswap-green bg-clip-text text-transparent">
-                Swap Skills,
+                5-Minute Skills,
               </span>
               <br />
-              Share Love.
+              Micro Learning.
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8 text-center md:text-left">
-              Join our global community where people exchange knowledge and learn from each other for free. Find someone to teach you a skill, and teach them one in return.
+            <p className="text-lg md:text-xl text-gray-600 mb-4 text-center md:text-left">
+              Join our beta community where people exchange quick 5-minute online lessons. Learn bite-sized skills from others, and teach what you know in return.
+            </p>
+            <p className="text-sm text-gray-500 mb-8 text-center md:text-left">
+              Beta Version: We're testing our micro-learning platform while developing SlikCoin, the future native cryptocurrency for SkilSwap's ecosystem.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <Button className="button-primary">Join the Community</Button>
+              <Button className="button-primary">Join Beta</Button>
               <Button className="button-secondary">Learn More</Button>
             </div>
           </div>
