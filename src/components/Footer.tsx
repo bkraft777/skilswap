@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Instagram, Twitter, Linkedin, Facebook } from 'lucide-react';
 
@@ -16,28 +17,36 @@ const Footer = () => {
             </p>
             <div className="flex space-x-6">
               <a 
-                href="#" 
+                href="https://instagram.com/skilswap.io"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-500 hover:text-[#E4405F] transform hover:scale-110 transition-all duration-300"
                 aria-label="Instagram"
               >
                 <Instagram size={24} />
               </a>
               <a 
-                href="#" 
+                href="https://twitter.com/skilswap"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-500 hover:text-[#1DA1F2] transform hover:scale-110 transition-all duration-300"
                 aria-label="Twitter"
               >
                 <Twitter size={24} />
               </a>
               <a 
-                href="#" 
+                href="https://linkedin.com/company/skilswap"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-500 hover:text-[#0A66C2] transform hover:scale-110 transition-all duration-300"
                 aria-label="LinkedIn"
               >
                 <Linkedin size={24} />
               </a>
               <a 
-                href="#" 
+                href="https://facebook.com/skilswap.io"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-gray-500 hover:text-[#1877F2] transform hover:scale-110 transition-all duration-300"
                 aria-label="Facebook"
               >
