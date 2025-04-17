@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -101,6 +100,14 @@ export default {
 				'rotate-gradient': {
 					from: { transform: 'rotate(0deg)' },
 					to: { transform: 'rotate(360deg)' },
+				},
+				'gradient-x': {
+					'0%, 100%': {
+						'background-position': '200% 50%'
+					},
+					'50%': {
+						'background-position': '0% 50%'
+					},
 				}
 			},
 			animation: {
@@ -109,6 +116,7 @@ export default {
 				'fade-in': 'fade-in 0.5s ease-out',
 				'scale-up': 'scale-up 0.3s ease-out',
 				'rotate-gradient': 'rotate-gradient 10s linear infinite',
+				'gradient': 'gradient-x 15s ease infinite',
 			}
 		}
 	},

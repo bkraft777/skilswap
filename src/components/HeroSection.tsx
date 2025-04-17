@@ -11,7 +11,7 @@ const HeroSection = () => {
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0 md:pr-8">
             <h1 className="tagline mb-6 text-center md:text-left">
-              <span className="bg-gradient-to-r from-silswap-pink to-silswap-green bg-clip-text text-transparent">
+              <span className="animate-gradient bg-[length:200%_auto] bg-gradient-to-r from-silswap-pink via-purple-500 to-silswap-green bg-clip-text text-transparent">
                 5-Minute Micro Learning Sessions
               </span>
             </h1>
