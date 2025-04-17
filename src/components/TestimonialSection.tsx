@@ -66,7 +66,8 @@ const TestimonialSection = () => {
         </div>
       </div>
 
-      <style jsx global>{`
+      <style>
+        {`
         @keyframes fadeInUp {
           from {
             opacity: 0;
@@ -77,7 +78,8 @@ const TestimonialSection = () => {
             transform: translateY(0);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
