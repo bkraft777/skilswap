@@ -28,32 +28,36 @@ const testimonials = [
 
 const TestimonialSection = () => {
   return (
-    <div className="bg-white">
+    <div className="bg-gray-900 py-16">
       <div className="section-container">
-        <h2 className="section-title">Success Stories</h2>
+        <h2 className="section-title text-white mb-12">Success Stories</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
             <div 
               key={index}
-              className="bg-white rounded-lg shadow-md p-8 flex flex-col h-full animate-fade-in"
-              style={{ animationDelay: `${index * 0.2}s` }}
+              className="bg-gray-800 rounded-lg shadow-xl p-8 flex flex-col h-full transform hover:scale-105 transition-all duration-300 hover:shadow-2xl"
+              style={{ 
+                animationDelay: `${index * 0.2}s`,
+                animation: 'fadeInUp 0.6s ease-out forwards',
+                opacity: 0
+              }}
             >
-              <div className="flex mb-4">
+              <div className="flex mb-4 animate-pulse">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-current text-yellow-400" />
                 ))}
               </div>
-              <p className="text-gray-600 italic mb-6 flex-grow">"{testimonial.quote}"</p>
+              <p className="text-gray-300 italic mb-6 flex-grow">"{testimonial.quote}"</p>
               <div className="flex items-center">
                 <img 
                   src={testimonial.image} 
                   alt={testimonial.name}
-                  className="w-14 h-14 rounded-full object-cover"
+                  className="w-14 h-14 rounded-full object-cover ring-2 ring-silswap-pink transform hover:scale-110 transition-transform duration-200"
                 />
                 <div className="ml-4">
-                  <p className="font-poppins font-semibold">{testimonial.name}</p>
-                  <p className="text-gray-500 text-sm">{testimonial.role}</p>
+                  <p className="font-poppins font-semibold text-white">{testimonial.name}</p>
+                  <p className="text-gray-400 text-sm">{testimonial.role}</p>
                   <p className="text-silswap-pink text-sm mt-1">{testimonial.skills}</p>
                 </div>
               </div>
@@ -61,6 +65,19 @@ const TestimonialSection = () => {
           ))}
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };
