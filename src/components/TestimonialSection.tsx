@@ -4,21 +4,21 @@ import { Star } from 'lucide-react';
 
 const testimonials = [
   {
-    quote: "I've always wanted to learn guitar but couldn't afford lessons. On SilSwap, I found someone who taught me guitar basics in exchange for Python programming lessons. It's amazing!",
+    quote: "I've always wanted to learn guitar but couldn't afford lessons. On SkilSwap, I found someone who taught me guitar basics in exchange for Python programming lessons. It's amazing!",
     name: "Alex Johnson",
     role: "Software Developer",
     skills: "Exchanged: Python for Guitar",
     image: "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
   },
   {
-    quote: "SilSwap transformed my hobby into something meaningful. I taught Italian cooking to a wonderful person who helped me improve my graphic design skills. We're still friends!",
+    quote: "SkilSwap transformed my hobby into something meaningful. I taught Italian cooking to a wonderful person who helped me improve my graphic design skills. We're still friends!",
     name: "Maria Rodriguez",
     role: "Home Chef",
     skills: "Exchanged: Cooking for Graphic Design",
     image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
   },
   {
-    quote: "As a retired teacher, I have so much knowledge to share. Through SilSwap, I teach math to students while learning photography from younger community members. It's a perfect exchange.",
+    quote: "As a retired teacher, I have so much knowledge to share. Through SkilSwap, I teach math to students while learning photography from younger community members. It's a perfect exchange.",
     name: "Robert Chen",
     role: "Retired Math Teacher",
     skills: "Exchanged: Math for Photography",
