@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import BetaSignupForm from './BetaSignupForm';
 
 const CTASection = () => {
   return (
@@ -15,9 +15,7 @@ const CTASection = () => {
         <p className="text-sm text-white/80 mb-10 max-w-2xl mx-auto">
           Be part of our journey as we develop SlikCoin, the future cryptocurrency that will power SkilSwap's skill-sharing economy.
         </p>
-        <Button className="bg-white text-silswap-pink hover:bg-gray-100 px-8 py-6 text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
-          Join SkilSwap Beta
-        </Button>
+        <BetaSignupForm />
       </div>
     </div>
   );
