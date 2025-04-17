@@ -1,12 +1,44 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from '@/components/ui/use-toast';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logged out successfully",
+      });
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -33,12 +65,13 @@ const Navbar = () => {
             <Link to="/how-it-works" className="font-medium hover:text-silswap-pink transition-colors">How It Works</Link>
             <Link to="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</Link>
             <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
-            <Button 
-              className="button-primary"
-              onClick={() => navigate('/login')}
-            >
-              Join Now
-            </Button>
+            {user ? (
+              <Button onClick={handleLogout}>Sign Out</Button>
+            ) : (
+              <Button onClick={() => navigate('/auth')} className="button-primary">
+                Join Now
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -86,12 +119,16 @@ const Navbar = () => {
               Community
             </Link>
             <div className="px-3 py-2">
-              <Button 
-                className="button-primary w-full"
-                onClick={() => navigate('/login')}
-              >
-                Join Now
-              </Button>
+              {user ? (
+                <Button onClick={handleLogout} className="w-full">Sign Out</Button>
+              ) : (
+                <Button 
+                  onClick={() => navigate('/auth')}
+                  className="button-primary w-full"
+                >
+                  Join Now
+                </Button>
+              )}
             </div>
           </div>
         </div>
