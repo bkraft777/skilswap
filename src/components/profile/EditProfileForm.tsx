@@ -74,18 +74,24 @@ const EditProfileForm = () => {
     if (!user) return;
 
     try {
-      // Use type assertion to ensure compatibility
-      const updateData = {
-        username: values.username,
-        bio: values.bio,
-        skills: values.skills,
-        interests: values.interests,
+      // Create an object with the correct shape first, then cast to ProfileUpdate
+      const updateData: {
+        username: string | null;
+        bio: string | null;
+        skills: string[] | null;
+        interests: string[] | null;
+        availability_status: string;
+      } = {
+        username: values.username || null,
+        bio: values.bio || null,
+        skills: values.skills || null,
+        interests: values.interests || null,
         availability_status: values.availability_status || 'messaging',
-      } as ProfileUpdate;
+      };
 
       const { error } = await supabase
         .from('profiles')
-        .update(updateData)
+        .update(updateData as unknown as ProfileUpdate)
         .eq('id', user.id as any);
 
       if (error) throw error;

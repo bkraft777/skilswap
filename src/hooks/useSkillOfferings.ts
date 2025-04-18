@@ -26,7 +26,7 @@ export const useSkillOfferings = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as SkillOffering[];
+      return (data || []) as unknown as SkillOffering[];
     }
   });
 };

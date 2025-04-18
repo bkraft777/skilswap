@@ -17,8 +17,8 @@ export const useFeaturedTeachers = () => {
 
       if (error) throw error;
       
-      // Use explicit any[] casting to handle the type conversion safely
-      return (data || []) as FeaturedTeacher[];
+      // Use explicit unknown casting before casting to the desired type
+      return (data || []) as unknown as FeaturedTeacher[];
     }
   });
 };

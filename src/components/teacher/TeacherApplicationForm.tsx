@@ -57,20 +57,27 @@ const TeacherApplicationForm = () => {
 
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
-      // Create a properly typed application data object
-      const applicationData = {
+      // Create an object with the correct structure first
+      const applicationData: {
+        full_name: string;
+        email: string;
+        expertise: string[];
+        experience_years: number;
+        teaching_style: string;
+        motivation: string;
+      } = {
         full_name: data.fullName,
         email: data.email,
         expertise: data.expertise,
         experience_years: data.experienceYears,
         teaching_style: data.teachingStyle,
         motivation: data.motivation
-      } as TeacherApplicationInsert;
+      };
 
-      // Explicitly pass a single object, not an array
+      // Explicitly pass a single object with type assertion
       const { error } = await supabase
         .from('teacher_applications')
-        .insert(applicationData);
+        .insert(applicationData as unknown as TeacherApplicationInsert);
 
       if (error) throw error;
 
