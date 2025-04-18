@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -56,6 +57,12 @@ const Navbar = () => {
             <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
             {user ? (
               <>
+                <Link to="/dashboard" className="font-medium hover:text-silswap-pink transition-colors flex items-center gap-1">
+                  <LayoutDashboard className="h-4 w-4" /> Dashboard
+                </Link>
+                <Link to="/points" className="font-medium hover:text-silswap-pink transition-colors flex items-center gap-1">
+                  <Coins className="h-4 w-4" /> Points
+                </Link>
                 <Link to="/become-teacher" className="font-medium hover:text-silswap-pink transition-colors">Become a Teacher</Link>
                 <Link to="/edit-profile" className="font-medium hover:text-silswap-pink transition-colors">
                   Edit Profile
@@ -122,6 +129,18 @@ const Navbar = () => {
             <div className="px-3 py-2">
               {user ? (
                 <div className="px-3 py-2 space-y-2">
+                  <Link 
+                    to="/dashboard" 
+                    className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10 flex items-center gap-1"
+                  >
+                    <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  </Link>
+                  <Link 
+                    to="/points" 
+                    className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10 flex items-center gap-1"
+                  >
+                    <Coins className="h-4 w-4" /> Points
+                  </Link>
                   <Link 
                     to="/edit-profile" 
                     className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
