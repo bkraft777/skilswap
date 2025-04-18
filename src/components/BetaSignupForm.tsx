@@ -13,8 +13,8 @@ import { z } from 'zod';
 import EmailInput from './beta-signup/EmailInput';
 import RoleSelection from './beta-signup/RoleSelection';
 import InterestSelection from './beta-signup/InterestSelection';
+import { OnboardingWizard } from './onboarding/OnboardingWizard';
 
-// Define validation schema
 const signupSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   role: z.enum(['learner', 'teacher'], {
@@ -40,6 +40,7 @@ const BetaSignupForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const validateForm = (): boolean => {
     try {
@@ -84,9 +85,6 @@ const BetaSignupForm = () => {
     }
 
     try {
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       const existingSignups = JSON.parse(localStorage.getItem('betaSignups') || '[]');
       
       if (existingSignups.some((s: BetaSignup) => s.email === email)) {
@@ -111,11 +109,12 @@ const BetaSignupForm = () => {
 
       toast({
         title: "Registration Successful! 🎉",
-        description: "Thank you for joining the SkilSwap beta. We'll be in touch soon!",
+        description: "Thank you for joining the SkilSwap beta. Let's set up your profile!",
       });
 
       setEmail('');
       setIsOpen(false);
+      setShowOnboarding(true);
     } catch (error) {
       toast({
         title: "Something went wrong",
@@ -128,55 +127,58 @@ const BetaSignupForm = () => {
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger asChild>
-        <Button className="bg-white text-silswap-pink hover:bg-gray-100 px-8 py-6 text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
-          Join SkilSwap Beta
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent className="sm:max-w-[425px]">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-2xl font-bold text-center mb-4">
+    <>
+      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+        <AlertDialogTrigger asChild>
+          <Button className="bg-white text-silswap-pink hover:bg-gray-100 px-8 py-6 text-lg font-semibold rounded-full shadow-lg hover:scale-105 transition-transform duration-300">
             Join SkilSwap Beta
-          </AlertDialogTitle>
-        </AlertDialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <EmailInput 
-            email={email}
-            onChange={handleEmailChange}
-            error={errors.email}
-            disabled={isSubmitting}
-          />
-          
-          <RoleSelection
-            role={role}
-            onRoleChange={setRole}
-            disabled={isSubmitting}
-          />
-          
-          <InterestSelection
-            interest={interest}
-            onInterestChange={setInterest}
-            disabled={isSubmitting}
-          />
-
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              'Submit'
-            )}
           </Button>
-        </form>
-      </AlertDialogContent>
-    </AlertDialog>
+        </AlertDialogTrigger>
+        <AlertDialogContent className="sm:max-w-[425px]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-bold text-center mb-4">
+              Join SkilSwap Beta
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <EmailInput 
+              email={email}
+              onChange={handleEmailChange}
+              error={errors.email}
+              disabled={isSubmitting}
+            />
+            
+            <RoleSelection
+              role={role}
+              onRoleChange={setRole}
+              disabled={isSubmitting}
+            />
+            
+            <InterestSelection
+              interest={interest}
+              onInterestChange={setInterest}
+              disabled={isSubmitting}
+            />
+
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit'
+              )}
+            </Button>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
+      {showOnboarding && <OnboardingWizard />}
+    </>
   );
 };
 
