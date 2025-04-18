@@ -60,7 +60,7 @@ const FeaturedTeachers = () => {
               <Card key={teacher.id} className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={teacher.avatar_url} alt={teacher.name} />
+                    <AvatarImage src={teacher.avatar_url || ''} alt={teacher.name} />
                     <AvatarFallback>{teacher.name.substring(0, 2)}</AvatarFallback>
                   </Avatar>
                   <div>

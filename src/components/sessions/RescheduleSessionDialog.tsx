@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/sonner';
 import { CalendarCheck, Clock } from 'lucide-react';
+import { Database } from '@/integrations/supabase/types';
 
 interface RescheduleSessionDialogProps {
   isOpen: boolean;
@@ -54,7 +55,7 @@ export function RescheduleSessionDialog({
         .from('skill_sessions')
         .update({ 
           scheduled_time: newDateTime.toISOString() 
-        })
+        } as Database['public']['Tables']['skill_sessions']['Update'])
         .eq('id', sessionId);
 
       if (error) throw error;

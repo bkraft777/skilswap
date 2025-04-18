@@ -11,6 +11,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+
+type TeacherApplication = Database['public']['Tables']['teacher_applications']['Insert'];
 
 const teacherApplicationSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
@@ -54,14 +57,18 @@ const TeacherApplicationForm = () => {
 
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
-      const { error } = await supabase.from('teacher_applications').insert([{
+      const applicationData: TeacherApplication = {
         full_name: data.fullName,
         email: data.email,
         expertise: data.expertise,
-        experience_years: data.experienceYears,  // This should now work because experienceYears is coerced to a number
+        experience_years: data.experienceYears,
         teaching_style: data.teachingStyle,
         motivation: data.motivation
-      }]);
+      };
+
+      const { error } = await supabase
+        .from('teacher_applications')
+        .insert(applicationData);
 
       if (error) throw error;
 

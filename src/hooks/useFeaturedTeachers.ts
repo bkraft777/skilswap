@@ -1,6 +1,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+
+type FeaturedTeacher = Database['public']['Tables']['featured_teachers']['Row'];
 
 export const useFeaturedTeachers = () => {
   return useQuery({
@@ -13,7 +16,7 @@ export const useFeaturedTeachers = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as FeaturedTeacher[];
     }
   });
 };

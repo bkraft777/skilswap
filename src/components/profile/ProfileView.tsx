@@ -9,9 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { User, MessageSquare, Clock, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AvailabilityStatusIndicator } from './AvailabilityStatusIndicator';
+import { Database } from '@/integrations/supabase/types';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 const ProfileView = () => {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -64,7 +67,7 @@ const ProfileView = () => {
       <Card>
         <CardHeader className="flex flex-row items-center space-x-4 pb-2">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={profile.avatar_url} />
+            <AvatarImage src={profile.avatar_url || undefined} />
             <AvatarFallback>
               <UserRound className="h-10 w-10" />
             </AvatarFallback>

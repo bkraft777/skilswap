@@ -7,6 +7,9 @@ import { Form } from '@/components/ui/form';
 import { ProfileFormFields } from './ProfileFormFields';
 import { useProfileForm, ProfileFormValues } from '@/hooks/useProfileForm';
 import { AvailabilityStatus, Skill, Interest, SKILLS, INTERESTS } from '@/lib/constants';
+import { Database } from '@/integrations/supabase/types';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 const EditProfileForm = () => {
   const [user, setUser] = React.useState<any>(null);
@@ -25,9 +28,18 @@ const EditProfileForm = () => {
           .eq('id', user.id)
           .single();
 
+        if (error) {
+          toast({
+            title: "Error",
+            description: "Could not fetch profile",
+            variant: "destructive",
+          });
+          return;
+        }
+
         if (data) {
           // Ensure availability_status is a valid enum value
-          const availability = data.availability_status as AvailabilityStatus || 'messaging';
+          const availability = (data.availability_status as AvailabilityStatus) || 'messaging';
           
           // Filter and validate skills and interests arrays to ensure they match our defined types
           const validSkills = Array.isArray(data.skills) 
@@ -48,14 +60,6 @@ const EditProfileForm = () => {
             skills: validSkills,
             interests: validInterests,
             availability_status: availability,
-          });
-        }
-
-        if (error) {
-          toast({
-            title: "Error",
-            description: "Could not fetch profile",
-            variant: "destructive",
           });
         }
       }
