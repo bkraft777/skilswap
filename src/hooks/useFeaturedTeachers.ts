@@ -16,7 +16,9 @@ export const useFeaturedTeachers = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as FeaturedTeacher[];
+      
+      // Use explicit any[] casting to handle the type conversion safely
+      return (data || []) as FeaturedTeacher[];
     }
   });
 };

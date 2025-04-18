@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -56,6 +57,7 @@ const TeacherApplicationForm = () => {
 
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
+      // Create a properly typed application data object
       const applicationData: TeacherApplicationInsert = {
         full_name: data.fullName,
         email: data.email,
@@ -65,6 +67,7 @@ const TeacherApplicationForm = () => {
         motivation: data.motivation
       };
 
+      // Explicitly pass a single object, not an array
       const { error } = await supabase
         .from('teacher_applications')
         .insert(applicationData);

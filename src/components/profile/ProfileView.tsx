@@ -29,6 +29,7 @@ const ProfileView = () => {
         return;
       }
 
+      // Type assertion for user.id
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -44,7 +45,8 @@ const ProfileView = () => {
         return;
       }
 
-      setProfile(data);
+      // Type assertion to ensure data is a Profile
+      setProfile(data as Profile);
       setLoading(false);
     };
 
@@ -63,7 +65,8 @@ const ProfileView = () => {
     );
   }
 
-  const statusValue = profile.availability_status as AvailabilityStatus || 'messaging';
+  // Ensure availability_status is a valid enum value
+  const statusValue = (profile.availability_status as AvailabilityStatus) || 'messaging';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

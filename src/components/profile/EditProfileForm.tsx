@@ -23,6 +23,7 @@ const EditProfileForm = () => {
       if (user) {
         setUser(user);
         
+        // Use explicit type casting for the id parameter
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -39,25 +40,28 @@ const EditProfileForm = () => {
         }
 
         if (data) {
+          // Type check data as Profile before using it
+          const profileData = data as Profile;
+          
           // Ensure availability_status is a valid enum value
-          const availability = (data.availability_status as AvailabilityStatus) || 'messaging';
+          const availability = (profileData.availability_status as AvailabilityStatus) || 'messaging';
           
           // Filter and validate skills and interests arrays to ensure they match our defined types
-          const validSkills = Array.isArray(data.skills) 
-            ? data.skills.filter((skill): skill is Skill => 
+          const validSkills = Array.isArray(profileData.skills) 
+            ? profileData.skills.filter((skill): skill is Skill => 
                 SKILLS.includes(skill as Skill)
               ) 
             : [];
             
-          const validInterests = Array.isArray(data.interests) 
-            ? data.interests.filter((interest): interest is Interest => 
+          const validInterests = Array.isArray(profileData.interests) 
+            ? profileData.interests.filter((interest): interest is Interest => 
                 INTERESTS.includes(interest as Interest)
               ) 
             : [];
           
           form.reset({
-            username: data.username || '',
-            bio: data.bio || '',
+            username: profileData.username || '',
+            bio: profileData.bio || '',
             skills: validSkills,
             interests: validInterests,
             availability_status: availability,
@@ -73,6 +77,7 @@ const EditProfileForm = () => {
     if (!user) return;
 
     try {
+      // Create a properly typed update object
       const updateData: ProfileUpdate = {
         username: values.username,
         bio: values.bio,
@@ -81,6 +86,7 @@ const EditProfileForm = () => {
         availability_status: values.availability_status || 'messaging',
       };
 
+      // Type assertion to handle the id parameter
       const { error } = await supabase
         .from('profiles')
         .update(updateData)

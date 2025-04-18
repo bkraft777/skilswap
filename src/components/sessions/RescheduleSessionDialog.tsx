@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -51,11 +52,12 @@ export function RescheduleSessionDialog({
       const newDateTime = new Date(date);
       newDateTime.setHours(hours, minutes);
       
-      // Update the session
+      // Update the session with properly typed data
       const updateData: SkillSessionUpdate = {
         scheduled_time: newDateTime.toISOString()
       };
 
+      // Type assertion for the id parameter
       const { error } = await supabase
         .from('skill_sessions')
         .update(updateData)
