@@ -1,7 +1,7 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Code, Utensils, Music, Languages, Palette, Camera, BookOpen, Play, Star, Users } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
+import SortSkills, { SortOption } from './skills/SortSkills';
 
 interface SkillCategory {
   icon: JSX.Element;
@@ -103,6 +103,24 @@ interface PopularSkillsProps {
 }
 
 const PopularSkills = ({ searchQuery = '', selectedCategory = 'All Categories' }: PopularSkillsProps) => {
+  const [currentSort, setCurrentSort] = useState<SortOption>('default');
+
+  const getSortedCategories = (categories: SkillCategory[]) => {
+    switch (currentSort) {
+      case 'popularity':
+        return [...categories].sort((a, b) => b.popularity - a.popularity);
+      case 'difficulty':
+        const difficultyOrder = { 'Beginner': 0, 'Intermediate': 1, 'Advanced': 2 };
+        return [...categories].sort((a, b) => 
+          difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
+        );
+      case 'activeUsers':
+        return [...categories].sort((a, b) => b.activeUsers - a.activeUsers);
+      default:
+        return categories;
+    }
+  };
+
   const filteredCategories = skillCategories.filter(category => {
     const matchSearch = category.title.toLowerCase().includes(searchQuery) || 
                        category.examples.toLowerCase().includes(searchQuery);
@@ -110,6 +128,8 @@ const PopularSkills = ({ searchQuery = '', selectedCategory = 'All Categories' }
                          category.title === selectedCategory;
     return matchSearch && matchCategory;
   });
+
+  const sortedCategories = getSortedCategories(filteredCategories);
 
   const getDifficultyColor = (difficulty: SkillCategory['difficulty']) => {
     switch (difficulty) {
@@ -127,8 +147,9 @@ const PopularSkills = ({ searchQuery = '', selectedCategory = 'All Categories' }
   return (
     <div className="bg-silswap-bg">
       <div className="section-container">
+        <SortSkills onSortChange={setCurrentSort} currentSort={currentSort} />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredCategories.map((category, index) => (
+          {sortedCategories.map((category, index) => (
             <div 
               key={index}
               className={`${category.color} rounded-lg p-6 shadow-sm card-hover animate-fade-in`}
