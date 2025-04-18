@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import Auth from "./pages/Auth";
 import EditProfile from "./pages/EditProfile";
 import Profile from "./pages/Profile";
 import BecomeTeacher from "./pages/BecomeTeacher";
+import Marketplace from "./pages/Marketplace";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +29,7 @@ const App = () => (
           <Route path="/skills" element={<Skills />} />
           <Route path="/community" element={<Community />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/edit-profile" element={
             <ProtectedRoute>
               <EditProfile />

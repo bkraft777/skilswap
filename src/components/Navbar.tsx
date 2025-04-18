@@ -51,6 +51,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="font-medium hover:text-silswap-pink transition-colors">Home</Link>
             <Link to="/how-it-works" className="font-medium hover:text-silswap-pink transition-colors">How It Works</Link>
+            <Link to="/marketplace" className="font-medium hover:text-silswap-pink transition-colors">Marketplace</Link>
             <Link to="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</Link>
             <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
             {user ? (
@@ -99,6 +100,12 @@ const Navbar = () => {
               className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
             >
               How It Works
+            </Link>
+            <Link
+              to="/marketplace"
+              className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
+            >
+              Marketplace
             </Link>
             <Link
               to="/skills"

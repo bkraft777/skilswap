@@ -45,6 +45,44 @@ export type Database = {
         }
         Relationships: []
       }
+      point_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          related_offering_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          related_offering_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          related_offering_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "point_transactions_related_offering_id_fkey"
+            columns: ["related_offering_id"]
+            isOneToOne: false
+            referencedRelation: "skill_offerings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           availability_status: string | null
@@ -87,6 +125,89 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_offerings: {
+        Row: {
+          availability: string[]
+          created_at: string | null
+          description: string
+          experience_level: string
+          id: string
+          is_active: boolean | null
+          points_cost: number
+          skill: string
+          teacher_id: string
+        }
+        Insert: {
+          availability?: string[]
+          created_at?: string | null
+          description: string
+          experience_level: string
+          id?: string
+          is_active?: boolean | null
+          points_cost: number
+          skill: string
+          teacher_id: string
+        }
+        Update: {
+          availability?: string[]
+          created_at?: string | null
+          description?: string
+          experience_level?: string
+          id?: string
+          is_active?: boolean | null
+          points_cost?: number
+          skill?: string
+          teacher_id?: string
+        }
+        Relationships: []
+      }
+      skill_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          duration_minutes: number
+          id: string
+          learner_id: string
+          offering_id: string
+          points_amount: number
+          scheduled_time: string
+          status: string
+          teacher_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          learner_id: string
+          offering_id: string
+          points_amount: number
+          scheduled_time: string
+          status?: string
+          teacher_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          learner_id?: string
+          offering_id?: string
+          points_amount?: number
+          scheduled_time?: string
+          status?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_sessions_offering_id_fkey"
+            columns: ["offering_id"]
+            isOneToOne: false
+            referencedRelation: "skill_offerings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_applications: {
         Row: {
           created_at: string | null
@@ -123,6 +244,30 @@ export type Database = {
           status?: string
           teaching_style?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_points: {
+        Row: {
+          last_updated: string | null
+          points_balance: number
+          total_earned: number
+          total_spent: number
+          user_id: string
+        }
+        Insert: {
+          last_updated?: string | null
+          points_balance?: number
+          total_earned?: number
+          total_spent?: number
+          user_id: string
+        }
+        Update: {
+          last_updated?: string | null
+          points_balance?: number
+          total_earned?: number
+          total_spent?: number
+          user_id?: string
         }
         Relationships: []
       }
