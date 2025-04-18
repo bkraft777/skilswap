@@ -16,7 +16,7 @@ const teacherApplicationSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   expertise: z.array(z.string()).min(1, 'Please select at least one area of expertise'),
-  experienceYears: z.string().transform(val => parseInt(val, 10)),
+  experienceYears: z.coerce.number().min(0, 'Experience years must be a positive number'),
   teachingStyle: z.string().min(20, 'Please describe your teaching style in more detail'),
   motivation: z.string().min(50, 'Please provide more details about your motivation')
 });
@@ -46,7 +46,7 @@ const TeacherApplicationForm = () => {
       fullName: '',
       email: '',
       expertise: [],
-      experienceYears: '',
+      experienceYears: 0,
       teachingStyle: '',
       motivation: ''
     }
@@ -58,7 +58,7 @@ const TeacherApplicationForm = () => {
         full_name: data.fullName,
         email: data.email,
         expertise: data.expertise,
-        experience_years: Number(data.experienceYears), // Explicitly convert string to number
+        experience_years: data.experienceYears,  // This should now work because experienceYears is coerced to a number
         teaching_style: data.teachingStyle,
         motivation: data.motivation
       }]);
@@ -137,7 +137,14 @@ const TeacherApplicationForm = () => {
             <FormItem>
               <FormLabel>Years of Experience</FormLabel>
               <FormControl>
-                <Input type="number" min="0" placeholder="5" {...field} />
+                <Input 
+                  type="number" 
+                  min="0" 
+                  placeholder="5"
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  value={field.value}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
