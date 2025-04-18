@@ -1,8 +1,15 @@
-
 import React from 'react';
 import { Code, Utensils, Music, Languages, Palette, Camera, BookOpen, Play } from 'lucide-react';
 
-const skillCategories = [
+interface SkillCategory {
+  icon: JSX.Element;
+  title: string;
+  examples: string;
+  color: string;
+  iconColor: string;
+}
+
+const skillCategories: SkillCategory[] = [
   {
     icon: <Code className="w-10 h-10" />,
     title: 'Programming',
@@ -61,14 +68,22 @@ const skillCategories = [
   },
 ];
 
-const PopularSkills = () => {
+interface PopularSkillsProps {
+  searchQuery?: string;
+}
+
+const PopularSkills = ({ searchQuery = '' }: PopularSkillsProps) => {
+  const filteredCategories = skillCategories.filter(category => {
+    const matchTitle = category.title.toLowerCase().includes(searchQuery);
+    const matchExamples = category.examples.toLowerCase().includes(searchQuery);
+    return matchTitle || matchExamples;
+  });
+
   return (
     <div className="bg-silswap-bg">
       <div className="section-container">
-        <h2 className="section-title">Popular Skills to Swap</h2>
-        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {skillCategories.map((category, index) => (
+          {filteredCategories.map((category, index) => (
             <div 
               key={index}
               className={`${category.color} rounded-lg p-6 shadow-sm card-hover animate-fade-in`}
