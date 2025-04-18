@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarCheck, Clock, Coins, Star, X } from "lucide-react";
+import { CalendarCheck, Clock, Coins, Star, X, Calendar } from "lucide-react";
 import { Session } from "@/hooks/useUserSessions";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { CancelSessionDialog } from "./CancelSessionDialog";
 import { RateSessionDialog } from "./RateSessionDialog";
+import { RescheduleSessionDialog } from "./RescheduleSessionDialog";
 
 interface SessionListProps {
   sessions: Session[];
@@ -16,8 +17,10 @@ interface SessionListProps {
 export function SessionList({ sessions }: SessionListProps) {
   const { user } = useAuth();
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [selectedScheduledTime, setSelectedScheduledTime] = useState<string>('');
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showRateDialog, setShowRateDialog] = useState(false);
+  const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
 
   const canCancelSession = (session: Session) => {
     const now = new Date();
@@ -37,10 +40,21 @@ export function SessionList({ sessions }: SessionListProps) {
     );
   };
 
+  const canRescheduleSession = (session: Session) => {
+    const now = new Date();
+    const sessionDate = new Date(session.scheduled_time);
+    return (
+      !session.cancelled_at &&
+      session.status !== 'completed' &&
+      sessionDate > now
+    );
+  };
+
   const handleRefresh = () => {
     // The query will automatically refetch due to invalidation
     setShowCancelDialog(false);
     setShowRateDialog(false);
+    setShowRescheduleDialog(false);
   };
 
   return (
@@ -84,7 +98,13 @@ export function SessionList({ sessions }: SessionListProps) {
                   {session.offering.description}
                 </p>
 
-                <div className="flex gap-2 pt-2">
+                {session.cancelled_at && (
+                  <div className="mt-2 text-sm text-red-500">
+                    <p><strong>Cancelled:</strong> {session.cancellation_reason}</p>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2 pt-2">
                   {canCancelSession(session) && (
                     <Button
                       variant="destructive"
@@ -96,6 +116,20 @@ export function SessionList({ sessions }: SessionListProps) {
                     >
                       <X className="h-4 w-4 mr-1" />
                       Cancel
+                    </Button>
+                  )}
+                  {canRescheduleSession(session) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedSessionId(session.id);
+                        setSelectedScheduledTime(session.scheduled_time);
+                        setShowRescheduleDialog(true);
+                      }}
+                    >
+                      <Calendar className="h-4 w-4 mr-1" />
+                      Reschedule
                     </Button>
                   )}
                   {canRateSession(session) && (
@@ -131,6 +165,13 @@ export function SessionList({ sessions }: SessionListProps) {
             onClose={() => setShowRateDialog(false)}
             sessionId={selectedSessionId}
             onRated={handleRefresh}
+          />
+          <RescheduleSessionDialog
+            isOpen={showRescheduleDialog}
+            onClose={() => setShowRescheduleDialog(false)}
+            sessionId={selectedSessionId}
+            currentScheduledTime={selectedScheduledTime}
+            onRescheduled={handleRefresh}
           />
         </>
       )}
