@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { Database } from "@/integrations/supabase/types";
 
 export interface UserPoints {
   points_balance: number;
@@ -28,10 +29,10 @@ export const useUserPoints = () => {
         .from('user_points')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .single<UserPoints>();
 
       if (error) throw error;
-      return data as UserPoints;
+      return data;
     },
     enabled: !!user,
   });
@@ -46,7 +47,7 @@ export const useUserPoints = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as PointTransaction[];
+      return (data || []) as unknown as PointTransaction[];
     },
     enabled: !!user,
   });

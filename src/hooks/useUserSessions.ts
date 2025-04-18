@@ -37,7 +37,7 @@ export const useUserSessions = () => {
         .order('scheduled_time', { ascending: true });
 
       if (error) throw error;
-      return data as Session[];
+      return (data || []) as unknown as Session[];
     },
     enabled: !!user,
   });
