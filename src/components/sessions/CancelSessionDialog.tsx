@@ -30,7 +30,8 @@ export function CancelSessionDialog({ isOpen, onClose, sessionId, onCancelled }:
   const handleCancel = async () => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.rpc('cancel_skill_session', {
+      // Use type assertion to fix the TypeScript error
+      const { error } = await supabase.rpc('cancel_skill_session' as any, {
         p_session_id: sessionId,
         p_reason: reason
       });

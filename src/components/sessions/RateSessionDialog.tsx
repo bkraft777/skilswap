@@ -32,7 +32,8 @@ export function RateSessionDialog({ isOpen, onClose, sessionId, onRated }: RateS
   const handleRate = async () => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.rpc('rate_skill_session', {
+      // Use type assertion to fix the TypeScript error
+      const { error } = await supabase.rpc('rate_skill_session' as any, {
         p_session_id: sessionId,
         p_rating: rating,
         p_feedback: feedback
