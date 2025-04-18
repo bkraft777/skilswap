@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Code, Utensils, Music, Languages, Palette, Camera, BookOpen, Play } from 'lucide-react';
 
@@ -70,13 +71,16 @@ const skillCategories: SkillCategory[] = [
 
 interface PopularSkillsProps {
   searchQuery?: string;
+  selectedCategory?: string;
 }
 
-const PopularSkills = ({ searchQuery = '' }: PopularSkillsProps) => {
+const PopularSkills = ({ searchQuery = '', selectedCategory = 'All Categories' }: PopularSkillsProps) => {
   const filteredCategories = skillCategories.filter(category => {
-    const matchTitle = category.title.toLowerCase().includes(searchQuery);
-    const matchExamples = category.examples.toLowerCase().includes(searchQuery);
-    return matchTitle || matchExamples;
+    const matchSearch = category.title.toLowerCase().includes(searchQuery) || 
+                       category.examples.toLowerCase().includes(searchQuery);
+    const matchCategory = selectedCategory === 'All Categories' || 
+                         category.title === selectedCategory;
+    return matchSearch && matchCategory;
   });
 
   return (
