@@ -32,8 +32,8 @@ const ProfileView = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
-        .single<Profile>();  // Add explicit type annotation
+        .eq('id', user.id as any)
+        .single<Profile>();
 
       if (error) {
         toast({

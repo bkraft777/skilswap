@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
 export interface SkillOffering {
   id: string;
@@ -21,7 +22,7 @@ export const useSkillOfferings = () => {
       const { data, error } = await supabase
         .from('skill_offerings')
         .select('*')
-        .eq('is_active', true)
+        .eq('is_active', true as any)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

@@ -26,8 +26,8 @@ const EditProfileForm = () => {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', user.id)
-          .single<Profile>();  // Add explicit type annotation
+          .eq('id', user.id as any)
+          .single<Profile>();
 
         if (error) {
           toast({
@@ -75,18 +75,18 @@ const EditProfileForm = () => {
 
     try {
       // Use type assertion to ensure compatibility
-      const updateData: ProfileUpdate = {
+      const updateData = {
         username: values.username,
         bio: values.bio,
         skills: values.skills,
         interests: values.interests,
         availability_status: values.availability_status || 'messaging',
-      };
+      } as ProfileUpdate;
 
       const { error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('id', user.id);
+        .eq('id', user.id as any);
 
       if (error) throw error;
 

@@ -58,14 +58,14 @@ const TeacherApplicationForm = () => {
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
       // Create a properly typed application data object
-      const applicationData: TeacherApplicationInsert = {
+      const applicationData = {
         full_name: data.fullName,
         email: data.email,
         expertise: data.expertise,
         experience_years: data.experienceYears,
         teaching_style: data.teachingStyle,
         motivation: data.motivation
-      };
+      } as TeacherApplicationInsert;
 
       // Explicitly pass a single object, not an array
       const { error } = await supabase
