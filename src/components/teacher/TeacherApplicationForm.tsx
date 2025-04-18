@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -13,7 +12,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 
-type TeacherApplication = Database['public']['Tables']['teacher_applications']['Insert'];
+type TeacherApplicationInsert = Database['public']['Tables']['teacher_applications']['Insert'];
 
 const teacherApplicationSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
@@ -57,7 +56,7 @@ const TeacherApplicationForm = () => {
 
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
-      const applicationData: TeacherApplication = {
+      const applicationData: TeacherApplicationInsert = {
         full_name: data.fullName,
         email: data.email,
         expertise: data.expertise,

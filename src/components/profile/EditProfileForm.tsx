@@ -10,6 +10,7 @@ import { AvailabilityStatus, Skill, Interest, SKILLS, INTERESTS } from '@/lib/co
 import { Database } from '@/integrations/supabase/types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
 const EditProfileForm = () => {
   const [user, setUser] = React.useState<any>(null);
@@ -25,7 +26,7 @@ const EditProfileForm = () => {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', user.id)
+          .eq('id', user.id as string)
           .single();
 
         if (error) {
@@ -72,15 +73,17 @@ const EditProfileForm = () => {
     if (!user) return;
 
     try {
+      const updateData: ProfileUpdate = {
+        username: values.username,
+        bio: values.bio,
+        skills: values.skills,
+        interests: values.interests,
+        availability_status: values.availability_status || 'messaging',
+      };
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          username: values.username,
-          bio: values.bio,
-          skills: values.skills,
-          interests: values.interests,
-          availability_status: values.availability_status || 'messaging',
-        })
+        .update(updateData)
         .eq('id', user.id);
 
       if (error) throw error;

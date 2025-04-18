@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/sonner';
 import { CalendarCheck, Clock } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
+
+type SkillSessionUpdate = Database['public']['Tables']['skill_sessions']['Update'];
 
 interface RescheduleSessionDialogProps {
   isOpen: boolean;
@@ -51,12 +52,14 @@ export function RescheduleSessionDialog({
       newDateTime.setHours(hours, minutes);
       
       // Update the session
+      const updateData: SkillSessionUpdate = {
+        scheduled_time: newDateTime.toISOString()
+      };
+
       const { error } = await supabase
         .from('skill_sessions')
-        .update({ 
-          scheduled_time: newDateTime.toISOString() 
-        } as Database['public']['Tables']['skill_sessions']['Update'])
-        .eq('id', sessionId);
+        .update(updateData)
+        .eq('id', sessionId as string);
 
       if (error) throw error;
 

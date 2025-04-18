@@ -10,6 +10,7 @@ import { User, MessageSquare, Clock, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AvailabilityStatusIndicator } from './AvailabilityStatusIndicator';
 import { Database } from '@/integrations/supabase/types';
+import { AvailabilityStatus } from '@/lib/constants';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -31,7 +32,7 @@ const ProfileView = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', user.id as string)
         .single();
 
       if (error) {
@@ -74,7 +75,9 @@ const ProfileView = () => {
           </Avatar>
           <div className="flex-1">
             <h1 className="text-2xl font-bold">{profile.username || 'Anonymous User'}</h1>
-            <AvailabilityStatusIndicator status={profile.availability_status || 'messaging'} />
+            <AvailabilityStatusIndicator 
+              status={(profile.availability_status as AvailabilityStatus) || 'messaging'} 
+            />
           </div>
           <Button onClick={() => navigate('/edit-profile')} variant="outline">
             Edit Profile
