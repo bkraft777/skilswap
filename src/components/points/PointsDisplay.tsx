@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserPoints } from "@/hooks/useUserPoints";
 import { Coins, TrendingDown, TrendingUp } from "lucide-react";
+import { BuyPointsDialog } from "./BuyPointsDialog";
 
 export const PointsDisplay = () => {
   const { points, transactions, isLoading, error } = useUserPoints();
@@ -14,12 +15,15 @@ export const PointsDisplay = () => {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Coins className="h-5 w-5" />
-            Points Balance
-          </CardTitle>
-          <CardDescription>Your current points and statistics</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Coins className="h-5 w-5" />
+              Points Balance
+            </CardTitle>
+            <CardDescription>Your current points and statistics</CardDescription>
+          </div>
+          <BuyPointsDialog />
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
