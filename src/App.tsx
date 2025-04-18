@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import BecomeTeacher from "./pages/BecomeTeacher";
 import Marketplace from "./pages/Marketplace";
 import MySessions from "./pages/MySessions";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,11 @@ const App = () => (
           <Route path="/my-sessions" element={
             <ProtectedRoute>
               <MySessions />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
             </ProtectedRoute>
           } />
           <Route path="*" element={<NotFound />} />
