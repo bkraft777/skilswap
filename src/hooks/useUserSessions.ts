@@ -14,6 +14,11 @@ export interface Session {
   };
   teacher_id: string;
   learner_id: string;
+  cancelled_at?: string;
+  cancelled_by?: string;
+  cancellation_reason?: string;
+  rating?: number;
+  feedback?: string;
 }
 
 export const useUserSessions = () => {
