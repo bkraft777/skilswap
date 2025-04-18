@@ -64,6 +64,7 @@ const Navbar = () => {
             <Link to="/how-it-works" className="font-medium hover:text-silswap-pink transition-colors">How It Works</Link>
             <Link to="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</Link>
             <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
+            <Link to="/become-teacher" className="font-medium hover:text-silswap-pink transition-colors">Become a Teacher</Link>
             {user ? (
               <>
                 <Link to="/edit-profile" className="font-medium hover:text-silswap-pink transition-colors">
@@ -121,6 +122,12 @@ const Navbar = () => {
               className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
             >
               Community
+            </Link>
+            <Link
+              to="/become-teacher"
+              className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
+            >
+              Become a Teacher
             </Link>
             <div className="px-3 py-2">
               {user ? (
