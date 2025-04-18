@@ -1,27 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -64,9 +53,9 @@ const Navbar = () => {
             <Link to="/how-it-works" className="font-medium hover:text-silswap-pink transition-colors">How It Works</Link>
             <Link to="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</Link>
             <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
-            <Link to="/become-teacher" className="font-medium hover:text-silswap-pink transition-colors">Become a Teacher</Link>
             {user ? (
               <>
+                <Link to="/become-teacher" className="font-medium hover:text-silswap-pink transition-colors">Become a Teacher</Link>
                 <Link to="/edit-profile" className="font-medium hover:text-silswap-pink transition-colors">
                   Edit Profile
                 </Link>
@@ -122,12 +111,6 @@ const Navbar = () => {
               className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
             >
               Community
-            </Link>
-            <Link
-              to="/become-teacher"
-              className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
-            >
-              Become a Teacher
             </Link>
             <div className="px-3 py-2">
               {user ? (

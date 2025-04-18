@@ -4,12 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import HowItWorks from "./pages/HowItWorks";
 import Skills from "./pages/Skills";
 import Community from "./pages/Community";
-import Login from "./pages/Login";
 import Auth from "./pages/Auth";
 import EditProfile from "./pages/EditProfile";
 import Profile from "./pages/Profile";
@@ -28,11 +28,22 @@ const App = () => (
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/community" element={<Community />} />
-          <Route path="/login" element={<Auth />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/edit-profile" element={<EditProfile />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/become-teacher" element={<BecomeTeacher />} />
+          <Route path="/edit-profile" element={
+            <ProtectedRoute>
+              <EditProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/become-teacher" element={
+            <ProtectedRoute>
+              <BecomeTeacher />
+            </ProtectedRoute>
+          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
