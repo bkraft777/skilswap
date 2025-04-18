@@ -1,17 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Award } from "lucide-react";
 import type { SkillOffering } from "@/hooks/useSkillOfferings";
+import { BookSkillDialog } from "./BookSkillDialog";
 
 interface SkillOfferingCardProps {
   offering: SkillOffering;
-  onBook?: (offering: SkillOffering) => void;
 }
 
-export const SkillOfferingCard = ({ offering, onBook }: SkillOfferingCardProps) => {
+export const SkillOfferingCard = ({ offering }: SkillOfferingCardProps) => {
+  const [bookingOpen, setBookingOpen] = useState(false);
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader>
@@ -27,6 +29,7 @@ export const SkillOfferingCard = ({ offering, onBook }: SkillOfferingCardProps) 
           </Badge>
         </div>
       </CardHeader>
+      
       <CardContent className="flex-grow">
         <p className="text-sm text-gray-600">{offering.description}</p>
         <div className="mt-4 space-y-2">
@@ -40,14 +43,21 @@ export const SkillOfferingCard = ({ offering, onBook }: SkillOfferingCardProps) 
           </div>
         </div>
       </CardContent>
+      
       <CardFooter>
         <Button 
-          onClick={() => onBook?.(offering)} 
+          onClick={() => setBookingOpen(true)} 
           className="w-full"
         >
           Book Session
         </Button>
       </CardFooter>
+
+      <BookSkillDialog
+        offering={offering}
+        open={bookingOpen}
+        onOpenChange={setBookingOpen}
+      />
     </Card>
   );
 };
