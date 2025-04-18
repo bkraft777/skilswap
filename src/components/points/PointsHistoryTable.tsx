@@ -11,17 +11,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
-
-interface Transaction {
-  id: string;
-  type: 'earn' | 'spend' | 'purchase';
-  amount: number;
-  description: string;
-  created_at: string;
-}
+import { PointTransaction } from '@/hooks/useUserPoints';
 
 interface PointsHistoryTableProps {
-  transactions?: Transaction[];
+  transactions?: PointTransaction[];
 }
 
 export function PointsHistoryTable({ transactions }: PointsHistoryTableProps) {
@@ -29,31 +22,39 @@ export function PointsHistoryTable({ transactions }: PointsHistoryTableProps) {
     return <p className="text-center text-muted-foreground py-4">No transactions yet</p>;
   }
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
+  const getTypeLabel = (transactionType: string) => {
+    switch (transactionType) {
       case 'earn':
+      case 'welcome_bonus':
+      case 'session_earning':
         return <Badge className="bg-green-500">Earned</Badge>;
       case 'spend':
+      case 'session_booking':
         return <Badge className="bg-red-500">Spent</Badge>;
       case 'purchase':
         return <Badge className="bg-blue-500">Purchased</Badge>;
       default:
-        return <Badge>{type}</Badge>;
+        return <Badge>{transactionType}</Badge>;
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
+  const getTypeIcon = (transactionType: string) => {
+    switch (transactionType) {
       case 'earn':
+      case 'welcome_bonus':
+      case 'session_earning':
+      case 'purchase':
         return <ArrowDownRight className="h-4 w-4 text-green-500" />;
       case 'spend':
+      case 'session_booking':
         return <ArrowUpRight className="h-4 w-4 text-red-500" />;
-      case 'purchase':
-        return <ArrowDownRight className="h-4 w-4 text-blue-500" />;
       default:
         return null;
     }
   };
+
+  const isEarnType = (transactionType: string) => 
+    ['earn', 'welcome_bonus', 'session_earning', 'purchase'].includes(transactionType);
 
   return (
     <div className="overflow-x-auto">
@@ -74,15 +75,15 @@ export function PointsHistoryTable({ transactions }: PointsHistoryTableProps) {
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  {getTypeIcon(transaction.type)}
-                  {getTypeLabel(transaction.type)}
+                  {getTypeIcon(transaction.transaction_type)}
+                  {getTypeLabel(transaction.transaction_type)}
                 </div>
               </TableCell>
               <TableCell>{transaction.description}</TableCell>
               <TableCell className="text-right font-medium">
-                {transaction.type === 'earn' || transaction.type === 'purchase' 
-                  ? `+${transaction.amount}` 
-                  : `-${transaction.amount}`
+                {isEarnType(transaction.transaction_type) || transaction.amount > 0
+                  ? `+${Math.abs(transaction.amount)}` 
+                  : `-${Math.abs(transaction.amount)}`
                 }
               </TableCell>
             </TableRow>

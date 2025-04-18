@@ -19,9 +19,22 @@ const POINT_PACKAGES = [
   { id: 3, amount: 1000, price: "$35.00", popular: false },
 ];
 
-export function BuyPointsDialog() {
+interface BuyPointsDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function BuyPointsDialog({ open, onOpenChange }: BuyPointsDialogProps = {}) {
   const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(open || false);
   const { toast } = useToast();
+  
+  const handleOpenChange = (newOpen: boolean) => {
+    setDialogOpen(newOpen);
+    if (onOpenChange) {
+      onOpenChange(newOpen);
+    }
+  };
   
   const handleBuy = () => {
     if (!selectedPackage) return;
@@ -31,10 +44,12 @@ export function BuyPointsDialog() {
       title: "Coming soon!",
       description: "Points purchase will be implemented in a future update.",
     });
+    
+    handleOpenChange(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open !== undefined ? open : dialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="flex items-center gap-2">
           <BadgeDollarSign className="h-4 w-4" />

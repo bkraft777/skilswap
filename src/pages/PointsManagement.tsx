@@ -34,7 +34,12 @@ const PointsManagement = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col items-center">
-                <PointsDisplay points={points} size="large" />
+                {points && (
+                  <div className="text-4xl font-bold flex items-center gap-2 mb-2">
+                    <Coins className="h-6 w-6 text-primary" />
+                    {points.points_balance}
+                  </div>
+                )}
                 <p className="text-sm text-muted-foreground mt-2 mb-4">Use points to book sessions with teachers</p>
                 <Button onClick={() => setBuyPointsOpen(true)}>Buy More Points</Button>
               </CardContent>
@@ -55,7 +60,7 @@ const PointsManagement = () => {
                       <span>Points Earned</span>
                     </div>
                     <span className="font-bold">
-                      {transactions?.filter(t => t.type === 'earn').reduce((sum, t) => sum + t.amount, 0) || 0}
+                      {points?.total_earned || 0}
                     </span>
                   </div>
                   
@@ -65,7 +70,7 @@ const PointsManagement = () => {
                       <span>Points Spent</span>
                     </div>
                     <span className="font-bold">
-                      {transactions?.filter(t => t.type === 'spend').reduce((sum, t) => sum + t.amount, 0) || 0}
+                      {points?.total_spent || 0}
                     </span>
                   </div>
                   
