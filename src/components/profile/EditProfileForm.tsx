@@ -26,7 +26,7 @@ const EditProfileForm = () => {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', user.id as string)
+          .eq('id', user.id)
           .single();
 
         if (error) {

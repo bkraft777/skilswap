@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useFeaturedTeachers } from '@/hooks/useFeaturedTeachers';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Database } from '@/integrations/supabase/types';
+
+type FeaturedTeacher = Database['public']['Tables']['featured_teachers']['Row'];
 
 const TeacherSkeleton = () => (
   <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -56,7 +59,7 @@ const FeaturedTeachers = () => {
               No featured teachers available at the moment.
             </p>
           ) : (
-            teachers?.map((teacher) => (
+            teachers?.map((teacher: FeaturedTeacher) => (
               <Card key={teacher.id} className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
                   <Avatar className="h-12 w-12">
@@ -74,7 +77,7 @@ const FeaturedTeachers = () => {
                 <CardContent>
                   <p className="text-gray-600 text-sm mb-4">{teacher.bio}</p>
                   <div className="flex flex-wrap gap-2">
-                    {teacher.skills.map((skill) => (
+                    {teacher.skills.map((skill: string) => (
                       <Badge key={skill} variant="secondary" className="text-xs">
                         {skill}
                       </Badge>

@@ -59,7 +59,7 @@ export function RescheduleSessionDialog({
       const { error } = await supabase
         .from('skill_sessions')
         .update(updateData)
-        .eq('id', sessionId as string);
+        .eq('id', sessionId);
 
       if (error) throw error;
 

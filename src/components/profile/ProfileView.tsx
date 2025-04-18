@@ -32,7 +32,7 @@ const ProfileView = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id as string)
+        .eq('id', user.id)
         .single();
 
       if (error) {
@@ -63,6 +63,8 @@ const ProfileView = () => {
     );
   }
 
+  const statusValue = profile.availability_status as AvailabilityStatus || 'messaging';
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <Card>
@@ -75,9 +77,7 @@ const ProfileView = () => {
           </Avatar>
           <div className="flex-1">
             <h1 className="text-2xl font-bold">{profile.username || 'Anonymous User'}</h1>
-            <AvailabilityStatusIndicator 
-              status={(profile.availability_status as AvailabilityStatus) || 'messaging'} 
-            />
+            <AvailabilityStatusIndicator status={statusValue} />
           </div>
           <Button onClick={() => navigate('/edit-profile')} variant="outline">
             Edit Profile
