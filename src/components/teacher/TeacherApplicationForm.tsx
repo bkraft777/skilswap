@@ -58,7 +58,7 @@ const TeacherApplicationForm = () => {
         full_name: data.fullName,
         email: data.email,
         expertise: data.expertise,
-        experience_years: data.experienceYears,
+        experience_years: Number(data.experienceYears), // Explicitly convert string to number
         teaching_style: data.teachingStyle,
         motivation: data.motivation
       }]);
