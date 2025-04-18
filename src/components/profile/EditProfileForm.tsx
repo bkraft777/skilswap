@@ -23,12 +23,11 @@ const EditProfileForm = () => {
       if (user) {
         setUser(user);
         
-        // Use explicit type casting for the id parameter
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .single<Profile>();  // Add explicit type annotation
 
         if (error) {
           toast({
@@ -39,14 +38,12 @@ const EditProfileForm = () => {
           return;
         }
 
+        // Add null check to ensure data is not undefined
         if (data) {
-          // Type check data as Profile before using it
-          const profileData = data as Profile;
+          const profileData = data;
           
-          // Ensure availability_status is a valid enum value
           const availability = (profileData.availability_status as AvailabilityStatus) || 'messaging';
           
-          // Filter and validate skills and interests arrays to ensure they match our defined types
           const validSkills = Array.isArray(profileData.skills) 
             ? profileData.skills.filter((skill): skill is Skill => 
                 SKILLS.includes(skill as Skill)
@@ -77,7 +74,7 @@ const EditProfileForm = () => {
     if (!user) return;
 
     try {
-      // Create a properly typed update object
+      // Use type assertion to ensure compatibility
       const updateData: ProfileUpdate = {
         username: values.username,
         bio: values.bio,
@@ -86,7 +83,6 @@ const EditProfileForm = () => {
         availability_status: values.availability_status || 'messaging',
       };
 
-      // Type assertion to handle the id parameter
       const { error } = await supabase
         .from('profiles')
         .update(updateData)

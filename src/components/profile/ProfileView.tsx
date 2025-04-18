@@ -29,12 +29,11 @@ const ProfileView = () => {
         return;
       }
 
-      // Type assertion for user.id
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .single<Profile>();  // Add explicit type annotation
 
       if (error) {
         toast({
@@ -45,9 +44,11 @@ const ProfileView = () => {
         return;
       }
 
-      // Type assertion to ensure data is a Profile
-      setProfile(data as Profile);
-      setLoading(false);
+      // Add null check to ensure data is not undefined
+      if (data) {
+        setProfile(data);
+        setLoading(false);
+      }
     };
 
     fetchProfile();
@@ -65,7 +66,6 @@ const ProfileView = () => {
     );
   }
 
-  // Ensure availability_status is a valid enum value
   const statusValue = (profile.availability_status as AvailabilityStatus) || 'messaging';
 
   return (
