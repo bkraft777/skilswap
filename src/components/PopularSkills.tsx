@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Code, Utensils, Music, Languages, Palette, Camera, BookOpen, Play, Star, Users } from 'lucide-react';
+import { Code, Utensils, Music, Languages, Palette, Camera, BookOpen, Play, Star, Users, CircleDot, CircleDotDashed, StarHalf } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import SortSkills, { SortOption } from './skills/SortSkills';
 
@@ -131,6 +131,19 @@ const PopularSkills = ({ searchQuery = '', selectedCategory = 'All Categories' }
 
   const sortedCategories = getSortedCategories(filteredCategories);
 
+  const getDifficultyIcon = (difficulty: SkillCategory['difficulty']) => {
+    switch (difficulty) {
+      case 'Beginner':
+        return <CircleDot className="w-4 h-4 text-green-600" />;
+      case 'Intermediate':
+        return <StarHalf className="w-4 h-4 text-yellow-600" />;
+      case 'Advanced':
+        return <Star className="w-4 h-4 text-red-600 fill-current" />;
+      default:
+        return null;
+    }
+  };
+
   const getDifficultyColor = (difficulty: SkillCategory['difficulty']) => {
     switch (difficulty) {
       case 'Beginner':
@@ -163,9 +176,12 @@ const PopularSkills = ({ searchQuery = '', selectedCategory = 'All Categories' }
               
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className={`font-medium ${getDifficultyColor(category.difficulty)}`}>
-                    {category.difficulty}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {getDifficultyIcon(category.difficulty)}
+                    <span className={`font-medium ${getDifficultyColor(category.difficulty)}`}>
+                      {category.difficulty}
+                    </span>
+                  </div>
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4 text-gray-600" />
                     <span className="text-gray-600">{category.activeUsers.toLocaleString()}</span>
