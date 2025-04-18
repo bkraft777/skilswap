@@ -52,17 +52,15 @@ export function RescheduleSessionDialog({
       const newDateTime = new Date(date);
       newDateTime.setHours(hours, minutes);
       
-      // Create a simple object first
-      const updateData: {
-        scheduled_time: string;
-      } = {
+      // Create an object with the correct type
+      const updateData: SkillSessionUpdate = {
         scheduled_time: newDateTime.toISOString()
       };
 
       // Type assertion for the id parameter
       const { error } = await supabase
         .from('skill_sessions')
-        .update(updateData as unknown as SkillSessionUpdate)
+        .update(updateData)
         .eq('id', sessionId as any);
 
       if (error) throw error;

@@ -75,13 +75,7 @@ const EditProfileForm = () => {
 
     try {
       // Create an object with the correct shape first, then cast to ProfileUpdate
-      const updateData: {
-        username: string | null;
-        bio: string | null;
-        skills: string[] | null;
-        interests: string[] | null;
-        availability_status: string;
-      } = {
+      const updateData: ProfileUpdate = {
         username: values.username || null,
         bio: values.bio || null,
         skills: values.skills || null,
@@ -91,7 +85,7 @@ const EditProfileForm = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update(updateData as unknown as ProfileUpdate)
+        .update(updateData)
         .eq('id', user.id as any);
 
       if (error) throw error;

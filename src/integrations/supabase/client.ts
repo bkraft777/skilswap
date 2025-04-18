@@ -9,7 +9,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    // Add allowed redirect URLs
-    redirectTo: window.location.origin + '/auth'
+    // Fix the redirectTo property configuration
+    storage: window.localStorage
   }
 });

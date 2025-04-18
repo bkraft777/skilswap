@@ -28,7 +28,7 @@ export const useUserPoints = () => {
       const { data, error } = await supabase
         .from('user_points')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id as any)
         .single<UserPoints>();
 
       if (error) throw error;
@@ -43,7 +43,7 @@ export const useUserPoints = () => {
       const { data, error } = await supabase
         .from('point_transactions')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user?.id as any)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
