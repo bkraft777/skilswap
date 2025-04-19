@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -90,14 +89,15 @@ const TeacherStats = () => {
         console.log('No approved teachers found in applications');
       }
       
-      // Add teachers from profiles with skills - ensure we use usernames not IDs
+      // Add teachers from profiles with skills - ensure we use usernames
       if (profilesWithSkills && profilesWithSkills.length > 0) {
         console.log(`Found ${profilesWithSkills.length} profiles with skills`);
         allTeachers.push(...profilesWithSkills
           .filter(profile => profile.skills && profile.skills.length > 0)
           .map(profile => ({
-            // Use username if available, or a friendly "Teacher" prefix instead of showing UUID
-            name: profile.username ? profile.username : `Teacher ${profile.id.substring(0, 4)}`,
+            name: profile.username || 
+                   (applicationTeachers?.find(t => t.user_id === profile.id)?.full_name) || 
+                   `Teacher ${profile.id.substring(0, 4)}`,
             skills: profile.skills || []
           }))
         );
