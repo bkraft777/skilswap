@@ -14,27 +14,26 @@ export interface Message {
   conversation_id: string;
 }
 
-// Define a simple fetch function with explicit typing
-function fetchMessagesForConversation(conversationId: string) {
-  return supabase
+// Define a typed fetch function
+const fetchMessagesForConversation = async (conversationId: string): Promise<Message[]> => {
+  const { data, error } = await supabase
     .from('messages')
     .select('*')
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true });
-}
+    
+  if (error) throw error;
+  return (data || []) as Message[];
+};
 
 export const useMessages = (conversationId: string) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  // Use a more basic approach to the query
+  // Use explicit typing for the query
   const { data: messages, isLoading } = useQuery({
     queryKey: ['messages', conversationId],
-    queryFn: async () => {
-      const { data, error } = await fetchMessagesForConversation(conversationId);
-      if (error) throw error;
-      return (data || []) as Message[];
-    },
+    queryFn: () => fetchMessagesForConversation(conversationId),
     enabled: !!conversationId && !!user,
   });
 
