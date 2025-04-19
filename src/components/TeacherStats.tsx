@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -138,6 +137,8 @@ const TeacherStats = () => {
 
   // Handle teacher click to start a session
   const handleTeacherClick = async (teacher: Teacher) => {
+    console.log('Teacher clicked:', teacher.name);
+    
     if (!user) {
       toast({
         title: "Please sign in",
@@ -216,8 +217,13 @@ const TeacherStats = () => {
           {teachers.map((teacher, index) => (
             <div 
               key={index} 
-              className="p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
+              className="p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors active:bg-gray-100"
               onClick={() => handleTeacherClick(teacher)}
+              onTouchStart={() => console.log('Touch start on teacher:', teacher.name)}
+              onTouchEnd={() => console.log('Touch end on teacher:', teacher.name)}
+              role="button"
+              aria-label={`Connect with ${teacher.name}`}
+              tabIndex={0}
             >
               <p className="font-medium break-words">{teacher.name}</p>
               {teacher.skills && teacher.skills.length > 0 ? (
