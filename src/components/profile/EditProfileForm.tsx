@@ -26,7 +26,7 @@ const EditProfileForm = () => {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', user.id as any)
+          .eq('id', user.id)
           .single<Profile>();
 
         if (error) {
@@ -74,7 +74,6 @@ const EditProfileForm = () => {
     if (!user) return;
 
     try {
-      // Create an object with the correct shape first, then cast to ProfileUpdate
       const updateData: ProfileUpdate = {
         username: values.username || null,
         bio: values.bio || null,
@@ -86,7 +85,7 @@ const EditProfileForm = () => {
       const { error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('id', user.id as any);
+        .eq('id', user.id);
 
       if (error) throw error;
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -57,7 +56,6 @@ const TeacherApplicationForm = () => {
 
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
-      // Create an object that matches the TeacherApplicationInsert type
       const applicationData: TeacherApplicationInsert = {
         full_name: data.fullName,
         email: data.email,
@@ -67,7 +65,6 @@ const TeacherApplicationForm = () => {
         motivation: data.motivation
       };
 
-      // Insert the data
       const { error } = await supabase
         .from('teacher_applications')
         .insert(applicationData);
