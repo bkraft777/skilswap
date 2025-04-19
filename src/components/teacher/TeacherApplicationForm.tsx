@@ -1,10 +1,9 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,8 +20,8 @@ const teacherApplicationSchema = z.object({
   email: z.string().email('Invalid email address'),
   expertise: z.array(z.string()).min(1, 'Please select at least one area of expertise'),
   experienceYears: z.coerce.number().min(0, 'Experience years must be a positive number'),
-  teachingStyle: z.string().min(20, 'Please describe your teaching style in more detail'),
-  motivation: z.string().min(50, 'Please provide more details about your motivation')
+  teachingStyle: z.string().min(20, 'Please describe your teaching style in more detail (minimum 20 characters)'),
+  motivation: z.string().min(50, 'Please provide more details about your motivation (minimum 50 characters)')
 });
 
 type TeacherApplicationForm = z.infer<typeof teacherApplicationSchema>;
@@ -57,6 +56,11 @@ const TeacherApplicationForm = () => {
     }
   });
 
+  const watchTeachingStyle = form.watch('teachingStyle');
+  const watchMotivation = form.watch('motivation');
+  const teachingStyleLength = watchTeachingStyle?.length || 0;
+  const motivationLength = watchMotivation?.length || 0;
+
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
       if (!user) {
@@ -74,7 +78,6 @@ const TeacherApplicationForm = () => {
       console.log("Current user email:", user.email);
       console.log("Submitting teacher application with data:", data);
 
-      // Ensure user has a valid ID
       if (!user.id) {
         console.error("User ID is missing or invalid");
         toast({
@@ -92,8 +95,8 @@ const TeacherApplicationForm = () => {
         experience_years: data.experienceYears,
         teaching_style: data.teachingStyle,
         motivation: data.motivation,
-        user_id: user.id,  // Explicitly link the application to the current user
-        status: 'pending'  // Explicitly set the status
+        user_id: user.id,
+        status: 'pending'
       };
 
       console.log("Preparing to submit application with data:", applicationData);
@@ -113,7 +116,6 @@ const TeacherApplicationForm = () => {
 
       console.log("Application submitted successfully:", result);
 
-      // Also update the user's profile with teaching skills
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ 
@@ -126,7 +128,6 @@ const TeacherApplicationForm = () => {
         console.warn("Profile error code:", profileError.code);
         console.warn("Profile error message:", profileError.message);
         console.warn("Profile error details:", profileError.details);
-        // Continue with success message even if profile update fails
       }
 
       toast({
@@ -142,7 +143,6 @@ const TeacherApplicationForm = () => {
       if (error.message) {
         errorMessage = error.message;
         
-        // Add specific handling for common error cases
         if (error.code === '23505') {
           errorMessage = "You have already submitted an application. Please wait for a response.";
         } else if (error.code === '23503') {
@@ -239,10 +239,16 @@ const TeacherApplicationForm = () => {
               <FormLabel>Teaching Style</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Describe your teaching approach and methodology..."
+                  placeholder="Describe your teaching approach and methodology... (minimum 20 characters)"
                   {...field}
                 />
               </FormControl>
+              <FormDescription className="flex justify-between">
+                <span>Describe how you approach teaching and your methodology</span>
+                <span className={`text-sm ${teachingStyleLength < 20 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {teachingStyleLength}/20 characters minimum
+                </span>
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -256,10 +262,16 @@ const TeacherApplicationForm = () => {
               <FormLabel>Why do you want to teach?</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Share your motivation for becoming a teacher..."
+                  placeholder="Share your motivation for becoming a teacher... (minimum 50 characters)"
                   {...field}
                 />
               </FormControl>
+              <FormDescription className="flex justify-between">
+                <span>Share your passion and reasons for wanting to teach</span>
+                <span className={`text-sm ${motivationLength < 50 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {motivationLength}/50 characters minimum
+                </span>
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
