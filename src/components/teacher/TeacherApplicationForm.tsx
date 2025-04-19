@@ -60,6 +60,7 @@ const TeacherApplicationForm = () => {
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
       if (!user) {
+        console.error("No authenticated user found");
         toast({
           title: "Authentication Required",
           description: "You must be logged in to submit a teacher application.",
@@ -70,7 +71,19 @@ const TeacherApplicationForm = () => {
       }
 
       console.log("Current user ID:", user.id);
+      console.log("Current user email:", user.email);
       console.log("Submitting teacher application with data:", data);
+
+      // Ensure user has a valid ID
+      if (!user.id) {
+        console.error("User ID is missing or invalid");
+        toast({
+          title: "Authentication Error",
+          description: "Your user account appears to be invalid. Please try logging out and back in.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       const applicationData: TeacherApplicationInsert = {
         full_name: data.fullName,
@@ -79,8 +92,11 @@ const TeacherApplicationForm = () => {
         experience_years: data.experienceYears,
         teaching_style: data.teachingStyle,
         motivation: data.motivation,
-        user_id: user.id  // Explicitly link the application to the current user
+        user_id: user.id,  // Explicitly link the application to the current user
+        status: 'pending'  // Explicitly set the status
       };
+
+      console.log("Preparing to submit application with data:", applicationData);
 
       const { data: result, error } = await supabase
         .from('teacher_applications')
@@ -89,6 +105,9 @@ const TeacherApplicationForm = () => {
 
       if (error) {
         console.error("Error submitting application:", error);
+        console.error("Error code:", error.code);
+        console.error("Error message:", error.message);
+        console.error("Error details:", error.details);
         throw error;
       }
 
@@ -104,6 +123,9 @@ const TeacherApplicationForm = () => {
 
       if (profileError) {
         console.warn("Error updating profile skills:", profileError);
+        console.warn("Profile error code:", profileError.code);
+        console.warn("Profile error message:", profileError.message);
+        console.warn("Profile error details:", profileError.details);
         // Continue with success message even if profile update fails
       }
 
@@ -115,9 +137,24 @@ const TeacherApplicationForm = () => {
       navigate('/');
     } catch (error: any) {
       console.error("Full error details:", error);
+      let errorMessage = "Failed to submit application. Please try again.";
+      
+      if (error.message) {
+        errorMessage = error.message;
+        
+        // Add specific handling for common error cases
+        if (error.code === '23505') {
+          errorMessage = "You have already submitted an application. Please wait for a response.";
+        } else if (error.code === '23503') {
+          errorMessage = "There was an issue linking your application to your account. Please try logging out and back in.";
+        } else if (error.code === '42P01') {
+          errorMessage = "Database configuration issue. Please contact support.";
+        }
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to submit application. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }
