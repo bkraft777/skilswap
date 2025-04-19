@@ -9,7 +9,9 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    // Fix the redirectTo property configuration
-    storage: window.localStorage
+    storage: window.localStorage,
+    // Set the default redirect path after authentication
+    redirectTo: window.location.origin + '/dashboard'
   }
 });
+
