@@ -20,7 +20,7 @@ export const useMessages = (conversationId: string) => {
 
   const { data: messages, isLoading } = useQuery({
     queryKey: ['messages', conversationId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Message[]> => {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -30,7 +30,7 @@ export const useMessages = (conversationId: string) => {
       if (error) throw error;
       
       // Create properly typed messages array with explicit type casting
-      const typedMessages = (data || []).map((message: any): Message => ({
+      const typedMessages: Message[] = (data || []).map((message: any) => ({
         id: message.id,
         content: message.content,
         created_at: message.created_at,
