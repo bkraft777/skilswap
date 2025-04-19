@@ -4,15 +4,30 @@ import { supabase } from "@/integrations/supabase/client";
 
 const TeacherStats = () => {
   const { data: teachers, isLoading, error } = useQuery({
-    queryKey: ['featuredTeachers'],
+    queryKey: ['teacherApplications'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First try to get from featured_teachers table
+      let { data: featuredTeachers, error: featuredError } = await supabase
         .from('featured_teachers')
         .select('name')
         .eq('is_active', true);
       
+      if (featuredTeachers && featuredTeachers.length > 0) {
+        return featuredTeachers.map(teacher => ({ name: teacher.name }));
+      }
+      
+      // If no featured teachers, get from teacher_applications table
+      const { data: applicationTeachers, error } = await supabase
+        .from('teacher_applications')
+        .select('full_name')
+        .eq('status', 'approved');
+      
       if (error) throw error;
-      return data;
+      
+      // Map the result to match the expected format
+      return (applicationTeachers || []).map(teacher => ({ 
+        name: teacher.full_name 
+      }));
     }
   });
 
@@ -28,7 +43,9 @@ const TeacherStats = () => {
         ))}
       </ul>
       {teachers?.length === 0 && (
-        <p className="text-gray-500">No teachers are currently available.</p>
+        <p className="text-gray-500">
+          No approved teachers are currently available. Teacher applications need to be approved by administrators.
+        </p>
       )}
     </div>
   );
