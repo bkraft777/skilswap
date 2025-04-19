@@ -104,6 +104,13 @@ const AdminDashboard = () => {
       // Immediately refetch to update the UI with fresh data
       await refetch();
       
+      // Update the local application status to immediately reflect the change in UI
+      // This ensures the badge updates right away, even before the refetch completes
+      const updatedApplications = applications?.map(app => 
+        app.id === id ? { ...app, status } : app
+      );
+      
+      // Force a component update by triggering a state change
       setProcessingId(null);
     } catch (error: any) {
       setProcessingId(null);
