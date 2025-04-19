@@ -37,6 +37,7 @@ const AdminDashboard = () => {
         description: `Teacher application ${status} successfully.`,
       });
       
+      // Immediately refetch to update the UI
       refetch();
     } catch (error: any) {
       toast({
