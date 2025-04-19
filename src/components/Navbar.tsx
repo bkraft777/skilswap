@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, LayoutDashboard, Coins, GraduationCap } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Coins, GraduationCap, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -52,8 +52,14 @@ const Navbar = () => {
             <Link to="/marketplace" className="font-medium hover:text-silswap-pink transition-colors">Marketplace</Link>
             <Link to="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</Link>
             <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
-            {user ? (
+            {user && (
               <>
+                <Link 
+                  to="/find-teacher" 
+                  className="font-medium hover:text-silswap-pink transition-colors flex items-center gap-1"
+                >
+                  <Search className="h-4 w-4" /> Find a Teacher
+                </Link>
                 <Link to="/dashboard" className="font-medium hover:text-silswap-pink transition-colors flex items-center gap-1">
                   <LayoutDashboard className="h-4 w-4" /> Dashboard
                 </Link>
