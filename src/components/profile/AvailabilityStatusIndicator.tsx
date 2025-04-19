@@ -7,6 +7,7 @@ interface AvailabilityStatusIndicatorProps {
 }
 
 export const AvailabilityStatusIndicator = ({ status }: AvailabilityStatusIndicatorProps) => {
+  // Define the status configurations
   const statusConfig = {
     live: {
       icon: <CircleCheck className="h-4 w-4 text-green-500 mr-1" />,
@@ -30,7 +31,9 @@ export const AvailabilityStatusIndicator = ({ status }: AvailabilityStatusIndica
     }
   };
 
-  const config = statusConfig[status];
+  // Ensure we have a valid status or default to 'messaging'
+  const validStatus = (status && statusConfig[status]) ? status : 'messaging';
+  const config = statusConfig[validStatus];
 
   return (
     <div className="mt-2 flex items-center">
