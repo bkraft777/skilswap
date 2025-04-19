@@ -2,6 +2,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+
+type Teacher = {
+  name: string;
+  skills: string[];
+};
 
 const TeacherStats = () => {
   const { data: teachers, isLoading, error } = useQuery({
@@ -13,23 +19,39 @@ const TeacherStats = () => {
         .select('name, skills')
         .eq('is_active', true);
       
-      if (featuredTeachers && featuredTeachers.length > 0) {
-        return featuredTeachers;
-      }
-      
-      // If no featured teachers, get from teacher_applications table
+      // Get from teacher_applications table where status is approved
       const { data: applicationTeachers, error } = await supabase
         .from('teacher_applications')
-        .select('full_name, expertise')
+        .select('full_name, expertise, user_id')
         .eq('status', 'approved');
       
       if (error) throw error;
       
-      // Map the result to match the expected format
-      return (applicationTeachers || []).map(teacher => ({ 
-        name: teacher.full_name,
-        skills: teacher.expertise
-      }));
+      // Combine both sources of teachers
+      const allTeachers: Teacher[] = [];
+      
+      // Add featured teachers if any
+      if (featuredTeachers && featuredTeachers.length > 0) {
+        allTeachers.push(...featuredTeachers.map(teacher => ({
+          name: teacher.name,
+          skills: teacher.skills
+        })));
+      }
+      
+      // Add approved application teachers
+      if (applicationTeachers && applicationTeachers.length > 0) {
+        allTeachers.push(...applicationTeachers.map(teacher => ({
+          name: teacher.full_name,
+          skills: teacher.expertise
+        })));
+      }
+      
+      // Return the combined list, with duplicates removed based on name
+      const uniqueTeachers = allTeachers.filter((teacher, index, self) =>
+        index === self.findIndex(t => t.name === teacher.name)
+      );
+      
+      return uniqueTeachers;
     }
   });
 
@@ -40,21 +62,21 @@ const TeacherStats = () => {
     <div className="p-4 bg-white rounded-lg shadow-sm">
       <h2 className="text-xl font-bold mb-4">Available Teachers ({teachers?.length || 0})</h2>
       
-      {teachers?.length === 0 ? (
+      {!teachers || teachers.length === 0 ? (
         <p className="text-gray-500">
           No approved teachers are currently available. Check back soon!
         </p>
       ) : (
         <div className="space-y-3">
-          {teachers?.map((teacher, index) => (
+          {teachers.map((teacher, index) => (
             <div key={index} className="p-3 border rounded-md hover:bg-gray-50">
               <p className="font-medium">{teacher.name}</p>
               {teacher.skills && (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {teacher.skills.map((skill, skillIndex) => (
-                    <span key={skillIndex} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                    <Badge key={skillIndex} variant="secondary" className="text-xs">
                       {skill}
-                    </span>
+                    </Badge>
                   ))}
                 </div>
               )}

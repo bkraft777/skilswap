@@ -32,6 +32,29 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
+      // Also add user to profiles table if they don't exist already
+      if (status === 'approved') {
+        const application = applications?.find(app => app.id === id);
+        if (application && application.user_id) {
+          // First check if user has skills in profile
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('skills')
+            .eq('id', application.user_id)
+            .single();
+            
+          // Update profile with expertise if needed
+          if (profileData) {
+            await supabase
+              .from('profiles')
+              .update({ 
+                skills: application.expertise 
+              })
+              .eq('id', application.user_id);
+          }
+        }
+      }
+
       toast({
         title: "Application Updated",
         description: `Teacher application ${status} successfully.`,
