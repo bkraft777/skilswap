@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { useEffect } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Teacher = {
   name: string;
@@ -13,6 +14,7 @@ type Teacher = {
 
 const TeacherStats = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const { data: teachers, isLoading, error, refetch } = useQuery({
     queryKey: ['availableTeachers'],
@@ -128,7 +130,7 @@ const TeacherStats = () => {
   if (error) return <div className="text-red-500">Error loading teachers</div>;
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-sm">
+    <div className={`p-4 bg-white rounded-lg shadow-sm ${isMobile ? 'w-full' : ''}`}>
       <h2 className="text-xl font-bold mb-4">Available Teachers ({teachers?.length || 0})</h2>
       
       {!teachers || teachers.length === 0 ? (
@@ -139,7 +141,7 @@ const TeacherStats = () => {
         <div className="space-y-3">
           {teachers.map((teacher, index) => (
             <div key={index} className="p-3 border rounded-md hover:bg-gray-50">
-              <p className="font-medium">{teacher.name}</p>
+              <p className="font-medium break-words">{teacher.name}</p>
               {teacher.skills && teacher.skills.length > 0 ? (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {teacher.skills.map((skill, skillIndex) => (

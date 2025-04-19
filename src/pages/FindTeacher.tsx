@@ -9,6 +9,7 @@ import { Search, Music, BookOpen } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSearch } from '@/hooks/useTeacherSearch';
 import { useToast } from '@/components/ui/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ const FindTeacher = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { isSearching, searchTeachers } = useTeacherSearch(user?.id);
+  const isMobile = useIsMobile();
 
   // Pre-select 'Music' if it's available in SKILL_CATEGORIES
   useEffect(() => {
@@ -67,12 +69,12 @@ const FindTeacher = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-1">
+        <div className={`grid ${isMobile ? 'grid-cols-1' : 'md:grid-cols-3'} gap-8`}>
+          <div className={`${isMobile ? 'order-2' : 'md:col-span-1'}`}>
             <TeacherStats />
           </div>
           
-          <div className="md:col-span-2">
+          <div className={`${isMobile ? 'order-1' : 'md:col-span-2'}`}>
             <div className="mb-8 bg-blue-50 p-6 rounded-lg">
               <div className="flex items-center gap-3 mb-4">
                 <Music className="h-8 w-8 text-blue-500" />
