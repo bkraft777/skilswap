@@ -1,9 +1,11 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/hooks/useAuth';
 
 export const useMessages = (conversationId: string) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: messages, isLoading } = useQuery({
     queryKey: ['messages', conversationId],
@@ -17,13 +19,21 @@ export const useMessages = (conversationId: string) => {
       if (error) throw error;
       return data;
     },
+    enabled: !!conversationId && !!user,
   });
 
   const sendMessage = useMutation({
     mutationFn: async ({ content, recipientId }: { content: string, recipientId: string }) => {
+      if (!user) throw new Error('User not authenticated');
+      
       const { data, error } = await supabase
         .from('messages')
-        .insert([{ content, recipient_id: recipientId }]);
+        .insert({
+          content, 
+          recipient_id: recipientId,
+          sender_id: user.id,
+          conversation_id: conversationId
+        });
 
       if (error) throw error;
       return data;
