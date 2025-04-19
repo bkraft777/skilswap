@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Menu, X, LayoutDashboard, Coins, GraduationCap, Search } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Coins, GraduationCap, Search, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -86,6 +87,14 @@ const Navbar = () => {
                 <Link to="/become-teacher" className="font-medium hover:text-silswap-pink transition-colors flex items-center gap-1">
                   <GraduationCap className="h-4 w-4" /> Become a Teacher
                 </Link>
+                {isAdmin && (
+                  <Link 
+                    to="/admin" 
+                    className="font-medium text-silswap-green hover:text-silswap-pink transition-colors flex items-center gap-1"
+                  >
+                    <Shield className="h-4 w-4" /> Admin
+                  </Link>
+                )}
                 <Link to="/edit-profile" className="font-medium hover:text-silswap-pink transition-colors">
                   Edit Profile
                 </Link>
@@ -95,14 +104,6 @@ const Navbar = () => {
               <Button onClick={() => navigate('/auth')} className="button-primary">
                 Join Now
               </Button>
-            )}
-            {user && isAdmin && (
-              <Link
-                to="/admin"
-                className="font-medium hover:text-silswap-pink transition-colors"
-              >
-                Admin Dashboard
-              </Link>
             )}
           </div>
 
@@ -181,6 +182,14 @@ const Navbar = () => {
                   >
                     <GraduationCap className="h-4 w-4" /> Become a Teacher
                   </Link>
+                  {isAdmin && (
+                    <Link 
+                      to="/admin" 
+                      className="block px-3 py-2 rounded-md font-medium bg-silswap-green/10 text-silswap-green hover:bg-silswap-pink/10 hover:text-silswap-pink flex items-center gap-1"
+                    >
+                      <Shield className="h-4 w-4" /> Admin Dashboard
+                    </Link>
+                  )}
                   <Link 
                     to="/edit-profile" 
                     className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
