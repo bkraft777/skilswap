@@ -13,9 +13,12 @@ const Navbar = () => {
   const { user } = useAuth();
 
   const { data: isAdmin } = useQuery({
-    queryKey: ['isAdmin'],
+    queryKey: ['isAdmin', user?.id],
     queryFn: async () => {
       if (!user) return false;
+      
+      console.log('Checking admin status for user:', user.id);
+      
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -23,9 +26,15 @@ const Navbar = () => {
         .eq('role', 'admin')
         .single();
       
-      if (error) return false;
+      if (error) {
+        console.error('Error checking admin role:', error);
+        return false;
+      }
+      
+      console.log('Admin role check result:', data);
       return !!data;
-    }
+    },
+    enabled: !!user
   });
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);

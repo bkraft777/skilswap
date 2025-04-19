@@ -27,7 +27,7 @@ const MobileMenu = ({ isOpen, onToggle, user, isAdmin }: MobileMenuProps) => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-white">
+        <div className="md:hidden fixed top-16 left-0 right-0 bg-white shadow-md z-50">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <NavLinks user={user} isAdmin={isAdmin} isMobile={true} />
             <div className="px-3 py-2">
