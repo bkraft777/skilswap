@@ -8,16 +8,40 @@ import { Button } from "@/components/ui/button";
 import { useUserSessions } from '@/hooks/useUserSessions';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { useAuth } from '@/hooks/useAuth';
-import { Calendar, Coins, BookOpen, ArrowRight, Search, Video } from 'lucide-react';
+import { Calendar, Coins, BookOpen, ArrowRight, Search, Video, Shield } from 'lucide-react';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
 import { UpcomingSessions } from '@/components/dashboard/UpcomingSessions';
 import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { data: sessions } = useUserSessions();
   const { points, transactions } = useUserPoints();
   const navigate = useNavigate();
+  
+  const { data: isAdmin } = useQuery({
+    queryKey: ['isAdmin', user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .single();
+      
+      if (error) {
+        console.error('Error checking admin role:', error);
+        return false;
+      }
+      
+      return !!data;
+    },
+    enabled: !!user
+  });
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -26,6 +50,16 @@ const Dashboard = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <div className="flex gap-3">
+            {isAdmin && (
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/admin')}
+                className="flex items-center gap-2 bg-green-100 hover:bg-green-200 text-green-700"
+              >
+                <Shield className="h-4 w-4" />
+                Admin Dashboard
+              </Button>
+            )}
             <Button 
               variant="outline" 
               onClick={() => navigate('/points')}
