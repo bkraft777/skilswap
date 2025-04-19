@@ -49,40 +49,49 @@ const AdminDashboard = () => {
         if (application && application.user_id) {
           console.log('Updating profile for user:', application.user_id);
           
-          // First check if user has skills in profile
-          const { data: profileData } = await supabase
+          // Get the profile first to check if it exists
+          const { data: profileExists, error: profileCheckError } = await supabase
             .from('profiles')
-            .select('skills')
-            .eq('id', application.user_id)
-            .single();
+            .select('id')
+            .eq('id', application.user_id);
             
-          // Update profile with expertise if needed
-          if (profileData) {
+          if (profileCheckError) {
+            console.error('Error checking if profile exists:', profileCheckError);
+          }
+          
+          console.log('Profile check result:', profileExists);
+          
+          // Update or insert profile with expertise
+          if (profileExists && profileExists.length > 0) {
             console.log('Updating existing profile with skills:', application.expertise);
-            const { error: profileUpdateError } = await supabase
+            const { data: updatedProfile, error: profileUpdateError } = await supabase
               .from('profiles')
               .update({ 
                 skills: application.expertise 
               })
-              .eq('id', application.user_id);
+              .eq('id', application.user_id)
+              .select();
               
             if (profileUpdateError) {
               console.error('Error updating profile skills:', profileUpdateError);
-              // Continue execution - we don't want to fail the entire process if just the profile update fails
+            } else {
+              console.log('Profile updated successfully:', updatedProfile);
             }
-          }
-          
-          // For debugging: Verify the update happened
-          const { data: updatedProfile, error: verifyError } = await supabase
-            .from('profiles')
-            .select('skills')
-            .eq('id', application.user_id)
-            .single();
-            
-          if (verifyError) {
-            console.error('Error verifying profile update:', verifyError);
           } else {
-            console.log('Updated profile:', updatedProfile);
+            console.log('Creating new profile with skills:', application.expertise);
+            const { data: newProfile, error: profileInsertError } = await supabase
+              .from('profiles')
+              .insert({ 
+                id: application.user_id,
+                skills: application.expertise 
+              })
+              .select();
+              
+            if (profileInsertError) {
+              console.error('Error creating profile:', profileInsertError);
+            } else {
+              console.log('New profile created successfully:', newProfile);
+            }
           }
         }
       }

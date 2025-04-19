@@ -39,7 +39,7 @@ const TeacherStats = () => {
       // Get from teacher_applications table where status is approved
       const { data: applicationTeachers, error: appError } = await supabase
         .from('teacher_applications')
-        .select('full_name, expertise, user_id, status')
+        .select('id, full_name, expertise, user_id, status')
         .eq('status', 'approved');
       
       console.log('Approved application teachers query result:', applicationTeachers);
@@ -54,7 +54,19 @@ const TeacherStats = () => {
         throw appError;
       }
       
-      // Combine both sources of teachers
+      // Get profiles with skills
+      const { data: profilesWithSkills, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, username, skills')
+        .not('skills', 'is', null);
+        
+      console.log('Profiles with skills:', profilesWithSkills);
+      
+      if (profilesError) {
+        console.error('Error fetching profiles with skills:', profilesError);
+      }
+      
+      // Combine all sources of teachers
       const allTeachers: Teacher[] = [];
       
       // Add featured teachers if any
@@ -76,6 +88,18 @@ const TeacherStats = () => {
         console.log('No approved teachers found in applications');
       }
       
+      // Add teachers from profiles with skills
+      if (profilesWithSkills && profilesWithSkills.length > 0) {
+        console.log(`Found ${profilesWithSkills.length} profiles with skills`);
+        allTeachers.push(...profilesWithSkills
+          .filter(profile => profile.skills && profile.skills.length > 0)
+          .map(profile => ({
+            name: profile.username || `Teacher-${profile.id.substring(0, 8)}`,
+            skills: profile.skills || []
+          }))
+        );
+      }
+      
       console.log('Combined teachers (before deduplication):', allTeachers);
       
       // Return the combined list, with duplicates removed based on name
@@ -92,7 +116,12 @@ const TeacherStats = () => {
 
   // Force an initial refetch on component mount to ensure data is fresh
   useEffect(() => {
-    refetch();
+    const initialFetch = async () => {
+      console.log('Forcing initial refresh of teacher data');
+      await refetch();
+    };
+    
+    initialFetch();
   }, [refetch]);
 
   if (isLoading) return <TeacherListSkeleton />;
@@ -111,7 +140,7 @@ const TeacherStats = () => {
           {teachers.map((teacher, index) => (
             <div key={index} className="p-3 border rounded-md hover:bg-gray-50">
               <p className="font-medium">{teacher.name}</p>
-              {teacher.skills && (
+              {teacher.skills && teacher.skills.length > 0 ? (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {teacher.skills.map((skill, skillIndex) => (
                     <Badge key={skillIndex} variant="secondary" className="text-xs">
@@ -119,6 +148,8 @@ const TeacherStats = () => {
                     </Badge>
                   ))}
                 </div>
+              ) : (
+                <p className="text-xs text-gray-500 mt-1">No skills specified</p>
               )}
             </div>
           ))}
