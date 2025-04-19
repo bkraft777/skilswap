@@ -1,4 +1,3 @@
-import { SKILLS } from '@/lib/constants';
 
 export const SKILLS = [
   'Web Development', 'Mobile Development', 'Data Science', 
@@ -9,7 +8,8 @@ export type Skill = typeof SKILLS[number];
 
 export const SKILL_CATEGORIES = [
   'Programming', 'Design', 'Music', 'Languages', 'Math', 
-  'Science', 'Art', 'Writing', 'Business', 'Fitness'
+  'Science', 'Art', 'Writing', 'Business', 'Fitness',
+  'Photography'
 ];
 
 export const INTERESTS = [
