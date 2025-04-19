@@ -32,11 +32,6 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
-      // Update the local state to immediately reflect the change
-      const updatedApplications = applications?.map(app => 
-        app.id === id ? { ...app, status } : app
-      );
-
       toast({
         title: "Application Updated",
         description: `Teacher application ${status} successfully.`,
