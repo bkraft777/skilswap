@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Menu, X, LayoutDashboard, Coins, GraduationCap, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -52,7 +53,7 @@ const Navbar = () => {
             <Link to="/marketplace" className="font-medium hover:text-silswap-pink transition-colors">Marketplace</Link>
             <Link to="/skills" className="font-medium hover:text-silswap-pink transition-colors">Skills</Link>
             <Link to="/community" className="font-medium hover:text-silswap-pink transition-colors">Community</Link>
-            {user && (
+            {user ? (
               <>
                 <Link 
                   to="/find-teacher" 
@@ -128,6 +129,12 @@ const Navbar = () => {
               className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10"
             >
               Community
+            </Link>
+            <Link
+              to="/find-teacher"
+              className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10 flex items-center gap-1"
+            >
+              <Search className="h-4 w-4" /> Find a Teacher
             </Link>
             <div className="px-3 py-2">
               {user ? (
