@@ -20,8 +20,8 @@ const teacherApplicationSchema = z.object({
   email: z.string().email('Invalid email address'),
   expertise: z.array(z.string()).min(1, 'Please select at least one area of expertise'),
   experienceYears: z.coerce.number().min(0, 'Experience years must be a positive number'),
-  teachingStyle: z.string().min(20, 'Please describe your teaching style in more detail (minimum 20 characters)'),
-  motivation: z.string().min(50, 'Please provide more details about your motivation (minimum 50 characters)')
+  teachingStyle: z.string().min(15, 'Please describe your teaching style in more detail (minimum 15 characters)'),
+  motivation: z.string().min(15, 'Please provide more details about your motivation (minimum 15 characters)')
 });
 
 type TeacherApplicationForm = z.infer<typeof teacherApplicationSchema>;
@@ -239,14 +239,14 @@ const TeacherApplicationForm = () => {
               <FormLabel>Teaching Style</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Describe your teaching approach and methodology... (minimum 20 characters)"
+                  placeholder="Describe your teaching approach and methodology... (minimum 15 characters)"
                   {...field}
                 />
               </FormControl>
               <FormDescription className="flex justify-between">
                 <span>Describe how you approach teaching and your methodology</span>
-                <span className={`text-sm ${teachingStyleLength < 20 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                  {teachingStyleLength}/20 characters minimum
+                <span className={`text-sm ${teachingStyleLength < 15 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {teachingStyleLength}/15 characters minimum
                 </span>
               </FormDescription>
               <FormMessage />
@@ -262,14 +262,14 @@ const TeacherApplicationForm = () => {
               <FormLabel>Why do you want to teach?</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Share your motivation for becoming a teacher... (minimum 50 characters)"
+                  placeholder="Share your motivation for becoming a teacher... (minimum 15 characters)"
                   {...field}
                 />
               </FormControl>
               <FormDescription className="flex justify-between">
                 <span>Share your passion and reasons for wanting to teach</span>
-                <span className={`text-sm ${motivationLength < 50 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                  {motivationLength}/50 characters minimum
+                <span className={`text-sm ${motivationLength < 15 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {motivationLength}/15 characters minimum
                 </span>
               </FormDescription>
               <FormMessage />
