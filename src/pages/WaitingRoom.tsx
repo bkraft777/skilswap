@@ -9,6 +9,7 @@ import { useWaitingRoom } from '@/hooks/useWaitingRoom';
 import { RequestDetails } from '@/components/waiting-room/RequestDetails';
 import { VideoSection } from '@/components/waiting-room/VideoSection';
 import PreSessionChat from '@/components/video/PreSessionChat';
+import { useToast } from '@/hooks/use-toast';
 
 const WaitingRoom = () => {
   const { requestId } = useParams();
@@ -20,6 +21,8 @@ const WaitingRoom = () => {
     teacherId,
     cancelRequest
   } = useWaitingRoom(requestId);
+
+  const { toast } = useToast();
 
   const {
     localStream,

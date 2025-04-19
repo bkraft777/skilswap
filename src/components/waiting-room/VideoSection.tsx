@@ -15,7 +15,7 @@ interface VideoSectionProps {
   isCameraOn: boolean;
   isMicOn: boolean;
   isScreenSharing: boolean;
-  connectionStatus: string;
+  connectionStatus: 'connected' | 'connecting' | 'disconnected';
   sessionDetails: any;
   onStartLive: () => Promise<void>;
   onEndLive: () => void;
