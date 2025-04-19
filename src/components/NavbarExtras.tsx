@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import TeacherNotifications from '@/components/teacher/TeacherNotifications';
 import { useAuth } from '@/hooks/useAuth';
+import { Search, Video } from 'lucide-react';
 
 const NavbarExtras = () => {
   const { user } = useAuth();
@@ -13,8 +14,11 @@ const NavbarExtras = () => {
       {user && (
         <>
           <TeacherNotifications />
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/find-teacher">Find a Teacher</Link>
+          <Button variant="default" size="sm" asChild className="flex items-center gap-1 bg-green-600 hover:bg-green-700">
+            <Link to="/find-teacher">
+              <Search className="h-4 w-4" />
+              <span>Find a Teacher</span>
+            </Link>
           </Button>
         </>
       )}
