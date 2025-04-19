@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -7,7 +7,10 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Video, X, Camera, Mic, MicOff, CameraOff } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
+import { useWebRTC } from '@/hooks/useWebRTC';
+import VideoControls from '@/components/video/VideoControls';
+import VideoDisplay from '@/components/video/VideoDisplay';
 
 const WaitingRoom = () => {
   const { requestId } = useParams();
@@ -19,17 +22,18 @@ const WaitingRoom = () => {
   const [requestDetails, setRequestDetails] = useState<any>(null);
   const [teacherConnected, setTeacherConnected] = useState(false);
   const [teacherProfile, setTeacherProfile] = useState<any>(null);
-  const [isLiveSession, setIsLiveSession] = useState(false);
-  const [isCameraOn, setIsCameraOn] = useState(true);
-  const [isMicOn, setIsMicOn] = useState(true);
-  
-  // Refs for video elements
-  const localVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  
-  // Refs for streams
-  const localStreamRef = useRef<MediaStream | null>(null);
-  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+
+  const {
+    localStream,
+    remoteStream,
+    isCameraOn,
+    isMicOn,
+    isLive,
+    startLocalStream,
+    stopLocalStream,
+    toggleCamera,
+    toggleMicrophone,
+  } = useWebRTC(requestId || '');
 
   useEffect(() => {
     if (!user) {
@@ -70,7 +74,6 @@ const WaitingRoom = () => {
             setTeacherProfile(teacherData);
           }
         }
-
       } catch (error) {
         console.error('Error fetching request details:', error);
         toast({
@@ -130,17 +133,7 @@ const WaitingRoom = () => {
 
   const cancelRequest = async () => {
     try {
-      // Stop any active streams
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach(track => track.stop());
-        localStreamRef.current = null;
-      }
-      
-      // Close peer connection
-      if (peerConnectionRef.current) {
-        peerConnectionRef.current.close();
-        peerConnectionRef.current = null;
-      }
+      stopLocalStream();
 
       // Update request status to cancelled
       await supabase
@@ -163,67 +156,18 @@ const WaitingRoom = () => {
     }
   };
 
-  const toggleCamera = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getVideoTracks().forEach(track => {
-        track.enabled = !isCameraOn;
-      });
-      setIsCameraOn(!isCameraOn);
-    }
-  };
-
-  const toggleMicrophone = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach(track => {
-        track.enabled = !isMicOn;
-      });
-      setIsMicOn(!isMicOn);
-    }
-  };
-
-  const startLiveSession = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
-      });
-      
-      localStreamRef.current = stream;
-      
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-      
-      setIsLiveSession(true);
-      
+  const handleStartLive = async () => {
+    const stream = await startLocalStream();
+    if (stream) {
       toast({
         title: 'Live session started',
         description: 'Your camera and microphone are now active',
       });
-      
-      // In a real implementation, we would set up WebRTC here
-      // and connect to the teacher
-      
-    } catch (error) {
-      console.error('Error starting live session:', error);
-      toast({
-        title: 'Error',
-        description: 'Could not access camera or microphone',
-        variant: 'destructive',
-      });
     }
   };
 
-  const endLiveSession = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(track => track.stop());
-      localStreamRef.current = null;
-    }
-    
-    setIsLiveSession(false);
-    setIsCameraOn(true);
-    setIsMicOn(true);
-    
+  const handleEndLive = () => {
+    stopLocalStream();
     toast({
       title: 'Live session ended',
       description: 'Your camera and microphone have been turned off',
@@ -299,44 +243,17 @@ const WaitingRoom = () => {
                   </div>
                 </div>
               )}
-              
-              {teacherConnected && !isLiveSession && (
-                <Button 
-                  onClick={startLiveSession}
-                  className="w-full"
-                >
-                  <Video className="mr-2 h-4 w-4" />
-                  Go Live with Teacher
-                </Button>
-              )}
-              
-              {isLiveSession && (
-                <div className="flex gap-4">
-                  <Button 
-                    onClick={toggleCamera}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    {isCameraOn ? <Camera className="mr-2 h-4 w-4" /> : <CameraOff className="mr-2 h-4 w-4" />}
-                    {isCameraOn ? 'Camera On' : 'Camera Off'}
-                  </Button>
-                  <Button 
-                    onClick={toggleMicrophone}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    {isMicOn ? <Mic className="mr-2 h-4 w-4" /> : <MicOff className="mr-2 h-4 w-4" />}
-                    {isMicOn ? 'Mic On' : 'Mic Off'}
-                  </Button>
-                  <Button 
-                    onClick={endLiveSession}
-                    variant="destructive"
-                    className="flex-1"
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    End Live Session
-                  </Button>
-                </div>
+
+              {teacherConnected && (
+                <VideoControls
+                  isLive={isLive}
+                  isCameraOn={isCameraOn}
+                  isMicOn={isMicOn}
+                  onStartLive={handleStartLive}
+                  onEndLive={handleEndLive}
+                  onToggleCamera={toggleCamera}
+                  onToggleMic={toggleMicrophone}
+                />
               )}
               
               {!teacherConnected && (
@@ -348,32 +265,18 @@ const WaitingRoom = () => {
             </div>
           )}
           
-          {isLiveSession && (
+          {isLive && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <div className="bg-white p-4 rounded-lg shadow-md">
-                <h3 className="text-lg font-medium mb-2">Your Camera</h3>
-                <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
-                  <video 
-                    ref={localVideoRef} 
-                    autoPlay 
-                    muted 
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-              <div className="bg-white p-4 rounded-lg shadow-md">
-                <h3 className="text-lg font-medium mb-2">Teacher's Camera</h3>
-                <div className="aspect-video bg-gray-100 rounded-md overflow-hidden flex items-center justify-center">
-                  <video 
-                    ref={remoteVideoRef} 
-                    autoPlay 
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                  <p className="text-gray-500">Waiting for teacher to go live...</p>
-                </div>
-              </div>
+              <VideoDisplay
+                stream={localStream}
+                isMuted={true}
+                title="Your Camera"
+              />
+              <VideoDisplay
+                stream={remoteStream}
+                title="Teacher's Camera"
+                placeholderText="Waiting for teacher to go live..."
+              />
             </div>
           )}
         </div>
