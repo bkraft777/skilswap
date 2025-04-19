@@ -21,6 +21,7 @@ import PointsManagement from "./pages/PointsManagement";
 import FindTeacher from "./pages/FindTeacher";
 import WaitingRoom from "./pages/WaitingRoom";
 import TeacherRoom from "./pages/TeacherRoom";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,11 @@ const App = () => (
           <Route path="/community" element={<Community />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          } />
           <Route path="/edit-profile" element={
             <ProtectedRoute>
               <EditProfile />
