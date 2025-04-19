@@ -13,17 +13,23 @@ const TeacherStats = () => {
   const { data: teachers, isLoading, error } = useQuery({
     queryKey: ['availableTeachers'],
     queryFn: async () => {
+      console.log('Fetching available teachers');
+      
       // First try to get from featured_teachers table
       let { data: featuredTeachers, error: featuredError } = await supabase
         .from('featured_teachers')
         .select('name, skills')
         .eq('is_active', true);
       
+      console.log('Featured teachers:', featuredTeachers);
+      
       // Get from teacher_applications table where status is approved
       const { data: applicationTeachers, error } = await supabase
         .from('teacher_applications')
         .select('full_name, expertise, user_id')
         .eq('status', 'approved');
+      
+      console.log('Approved application teachers:', applicationTeachers);
       
       if (error) throw error;
       
@@ -46,15 +52,18 @@ const TeacherStats = () => {
         })));
       }
       
+      console.log('Combined teachers (before deduplication):', allTeachers);
+      
       // Return the combined list, with duplicates removed based on name
       const uniqueTeachers = allTeachers.filter((teacher, index, self) =>
         index === self.findIndex(t => t.name === teacher.name)
       );
       
+      console.log('Final teachers list:', uniqueTeachers);
       return uniqueTeachers;
     },
-    // Add this refetchInterval to ensure fresh data
-    refetchInterval: 10000  // Refresh every 10 seconds
+    // Refresh every 5 seconds to ensure fresh data
+    refetchInterval: 5000
   });
 
   if (isLoading) return <TeacherListSkeleton />;

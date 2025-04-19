@@ -36,6 +36,8 @@ const AdminDashboard = () => {
       if (status === 'approved') {
         const application = applications?.find(app => app.id === id);
         if (application && application.user_id) {
+          console.log('Updating profile for user:', application.user_id);
+          
           // First check if user has skills in profile
           const { data: profileData } = await supabase
             .from('profiles')
@@ -45,6 +47,7 @@ const AdminDashboard = () => {
             
           // Update profile with expertise if needed
           if (profileData) {
+            console.log('Updating existing profile with skills:', application.expertise);
             await supabase
               .from('profiles')
               .update({ 
@@ -52,6 +55,15 @@ const AdminDashboard = () => {
               })
               .eq('id', application.user_id);
           }
+          
+          // For debugging: Verify the update happened
+          const { data: updatedProfile } = await supabase
+            .from('profiles')
+            .select('skills')
+            .eq('id', application.user_id)
+            .single();
+            
+          console.log('Updated profile:', updatedProfile);
         }
       }
 
@@ -60,8 +72,15 @@ const AdminDashboard = () => {
         description: `Teacher application ${status} successfully.`,
       });
       
-      // Immediately refetch to update the UI
-      refetch();
+      // Update local state immediately for a better UX
+      // This ensures the badge updates right away
+      if (applications) {
+        const updatedApplications = applications.map(app => 
+          app.id === id ? { ...app, status } : app
+        );
+        // Force a refresh of the UI
+        refetch();
+      }
     } catch (error: any) {
       toast({
         title: "Error",
