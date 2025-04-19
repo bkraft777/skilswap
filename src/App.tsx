@@ -18,6 +18,9 @@ import Marketplace from "./pages/Marketplace";
 import MySessions from "./pages/MySessions";
 import Dashboard from "./pages/Dashboard";
 import PointsManagement from "./pages/PointsManagement";
+import FindTeacher from "./pages/FindTeacher";
+import WaitingRoom from "./pages/WaitingRoom";
+import TeacherRoom from "./pages/TeacherRoom";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +67,21 @@ const App = () => (
               <PointsManagement />
             </ProtectedRoute>
           } />
+          <Route path="/find-teacher" element={
+            <ProtectedRoute>
+              <FindTeacher />
+            </ProtectedRoute>
+          } />
+          <Route path="/waiting-room/:requestId" element={
+            <ProtectedRoute>
+              <WaitingRoom />
+            </ProtectedRoute>
+          } />
+          <Route path="/teacher-room/:requestId" element={
+            <ProtectedRoute>
+              <TeacherRoom />
+            </ProtectedRoute>
+          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
@@ -72,4 +90,3 @@ const App = () => (
 );
 
 export default App;
-
