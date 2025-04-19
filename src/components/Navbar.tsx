@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Menu, X, LayoutDashboard, Coins } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Coins, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +36,6 @@ const Navbar = () => {
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <div className="flex items-center">
             <Link 
               to="/" 
@@ -48,7 +46,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="font-medium hover:text-silswap-pink transition-colors">Home</Link>
             <Link to="/how-it-works" className="font-medium hover:text-silswap-pink transition-colors">How It Works</Link>
@@ -63,7 +60,9 @@ const Navbar = () => {
                 <Link to="/points" className="font-medium hover:text-silswap-pink transition-colors flex items-center gap-1">
                   <Coins className="h-4 w-4" /> Points
                 </Link>
-                <Link to="/become-teacher" className="font-medium hover:text-silswap-pink transition-colors">Become a Teacher</Link>
+                <Link to="/become-teacher" className="font-medium hover:text-silswap-pink transition-colors flex items-center gap-1">
+                  <GraduationCap className="h-4 w-4" /> Become a Teacher
+                </Link>
                 <Link to="/edit-profile" className="font-medium hover:text-silswap-pink transition-colors">
                   Edit Profile
                 </Link>
@@ -76,7 +75,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={toggleMenu}
@@ -92,7 +90,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -140,6 +137,12 @@ const Navbar = () => {
                     className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10 flex items-center gap-1"
                   >
                     <Coins className="h-4 w-4" /> Points
+                  </Link>
+                  <Link 
+                    to="/become-teacher" 
+                    className="block px-3 py-2 rounded-md font-medium hover:bg-silswap-pink/10 flex items-center gap-1"
+                  >
+                    <GraduationCap className="h-4 w-4" /> Become a Teacher
                   </Link>
                   <Link 
                     to="/edit-profile" 
