@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -159,6 +160,8 @@ const TeacherStats = () => {
     }
 
     try {
+      console.log('Starting connection process with teacher:', teacher.name, 'ID:', teacher.id);
+
       // Create a help request
       const { data: requestData, error: requestError } = await supabase
         .from('skill_help_requests')
@@ -171,18 +174,29 @@ const TeacherStats = () => {
         .select()
         .single();
 
-      if (requestError) throw requestError;
+      if (requestError) {
+        console.error('Error creating help request:', requestError);
+        throw requestError;
+      }
+
+      console.log('Help request created:', requestData);
 
       // Create a teacher connection
-      const { error: connectionError } = await supabase
+      const { data: connectionData, error: connectionError } = await supabase
         .from('teacher_connections')
         .insert({
           teacher_id: teacher.id,
           request_id: requestData.id,
           status: 'connected'
-        });
+        })
+        .select();
 
-      if (connectionError) throw connectionError;
+      if (connectionError) {
+        console.error('Error creating teacher connection:', connectionError);
+        throw connectionError;
+      }
+
+      console.log('Teacher connection created:', connectionData);
 
       // Navigate to waiting room
       toast({
@@ -190,6 +204,7 @@ const TeacherStats = () => {
         description: `Connecting you with ${teacher.name}`,
       });
       
+      console.log('Navigating to waiting room with request ID:', requestData.id);
       navigate(`/waiting-room/${requestData.id}`);
     } catch (error) {
       console.error('Error connecting with teacher:', error);
