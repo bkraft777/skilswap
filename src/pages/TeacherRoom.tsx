@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -27,11 +26,12 @@ const TeacherRoom = () => {
     isCameraOn,
     isMicOn,
     isLive,
+    connectionStatus,
     startLocalStream,
     stopLocalStream,
     toggleCamera,
     toggleMicrophone,
-  } = useWebRTC(requestId || '');
+  } = useWebRTC(requestId || '', 'teacher');
 
   useEffect(() => {
     if (!user) {
@@ -50,7 +50,6 @@ const TeacherRoom = () => {
         if (error) throw error;
         setRequestDetails(data);
 
-        // Fetch learner profile
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('username, avatar_url')
@@ -179,6 +178,11 @@ const TeacherRoom = () => {
                 <p className="text-gray-600">
                   <span className="font-medium">Specific Need:</span> {requestDetails.specific_need}
                 </p>
+                {connectionStatus === 'connected' && (
+                  <p className="text-green-600 font-medium mt-2">
+                    Connected with learner
+                  </p>
+                )}
               </div>
 
               <VideoControls
@@ -203,7 +207,11 @@ const TeacherRoom = () => {
               <VideoDisplay
                 stream={remoteStream}
                 title="Learner's Camera"
-                placeholderText="Waiting for learner to join..."
+                placeholderText={
+                  connectionStatus === 'connecting' 
+                    ? "Connecting to learner..." 
+                    : "Waiting for learner to join..."
+                }
               />
             </div>
           )}

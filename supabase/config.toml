@@ -1,1 +1,5 @@
+
 project_id = "qavxzwmkjpjbpbtxtoqb"
+
+[functions.signaling]
+verify_jwt = true

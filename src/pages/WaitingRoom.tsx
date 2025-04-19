@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -29,11 +28,12 @@ const WaitingRoom = () => {
     isCameraOn,
     isMicOn,
     isLive,
+    connectionStatus,
     startLocalStream,
     stopLocalStream,
     toggleCamera,
     toggleMicrophone,
-  } = useWebRTC(requestId || '');
+  } = useWebRTC(requestId || '', 'learner');
 
   useEffect(() => {
     if (!user) {
@@ -52,7 +52,6 @@ const WaitingRoom = () => {
         if (error) throw error;
         setRequestDetails(data);
 
-        // Check if a teacher has connected to this request
         const { data: connectionData, error: connectionError } = await supabase
           .from('teacher_connections')
           .select('teacher_id, status')
@@ -63,7 +62,6 @@ const WaitingRoom = () => {
         if (!connectionError && connectionData) {
           setTeacherConnected(true);
           
-          // Get teacher profile
           const { data: teacherData, error: teacherError } = await supabase
             .from('profiles')
             .select('username, avatar_url')
@@ -89,7 +87,6 @@ const WaitingRoom = () => {
 
     fetchRequestDetails();
 
-    // Subscribe to changes in teacher connections
     const connectionsChannel = supabase
       .channel('waiting-room-connections')
       .on(
@@ -106,7 +103,6 @@ const WaitingRoom = () => {
           if (newConnection.status === 'connected') {
             setTeacherConnected(true);
             
-            // Get teacher profile
             const { data: teacherData, error: teacherError } = await supabase
               .from('profiles')
               .select('username, avatar_url')
@@ -135,7 +131,6 @@ const WaitingRoom = () => {
     try {
       stopLocalStream();
 
-      // Update request status to cancelled
       await supabase
         .from('skill_help_requests')
         .update({ status: 'cancelled' })
@@ -218,6 +213,11 @@ const WaitingRoom = () => {
                 <p className="text-gray-600 mt-2">
                   <span className="font-medium">Status:</span> {teacherConnected ? 'Teacher connected' : 'Waiting for a teacher'}
                 </p>
+                {connectionStatus === 'connected' && (
+                  <p className="text-green-600 font-medium mt-2">
+                    Video connection established
+                  </p>
+                )}
               </div>
               
               {teacherConnected && teacherProfile && (
@@ -275,7 +275,11 @@ const WaitingRoom = () => {
               <VideoDisplay
                 stream={remoteStream}
                 title="Teacher's Camera"
-                placeholderText="Waiting for teacher to go live..."
+                placeholderText={
+                  connectionStatus === 'connecting' 
+                    ? "Connecting to teacher..." 
+                    : "Waiting for teacher to go live..."
+                }
               />
             </div>
           )}
