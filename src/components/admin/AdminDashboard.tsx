@@ -32,6 +32,11 @@ const AdminDashboard = () => {
 
       if (error) throw error;
 
+      // Update the local state to immediately reflect the change
+      const updatedApplications = applications?.map(app => 
+        app.id === id ? { ...app, status } : app
+      );
+
       toast({
         title: "Application Updated",
         description: `Teacher application ${status} successfully.`,
@@ -48,8 +53,8 @@ const AdminDashboard = () => {
     }
   };
 
-  if (isLoading) return <div>Loading applications...</div>;
-  if (error) return <div>Error loading applications</div>;
+  if (isLoading) return <div className="p-6">Loading applications...</div>;
+  if (error) return <div className="p-6 text-red-500">Error loading applications</div>;
 
   return (
     <div className="space-y-6 p-6">
@@ -60,12 +65,12 @@ const AdminDashboard = () => {
       ) : (
         <div className="grid gap-4">
           {applications?.map((application) => (
-            <Card key={application.id}>
+            <Card key={application.id} className={application.status === 'approved' ? 'border-green-200' : ''}>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>{application.full_name}</span>
                   <Badge variant={
-                    application.status === 'approved' ? 'secondary' :
+                    application.status === 'approved' ? 'success' :
                     application.status === 'rejected' ? 'destructive' :
                     'default'
                   }>
@@ -106,7 +111,7 @@ const AdminDashboard = () => {
                     <div className="flex gap-2 mt-4">
                       <Button
                         onClick={() => handleApplicationUpdate(application.id, 'approved')}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
                       >
                         <CheckCircle className="h-4 w-4" />
                         Approve
