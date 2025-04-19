@@ -64,7 +64,7 @@ const AdminDashboard = () => {
                 <CardTitle className="flex items-center justify-between">
                   <span>{application.full_name}</span>
                   <Badge variant={
-                    application.status === 'approved' ? 'success' :
+                    application.status === 'approved' ? 'secondary' :
                     application.status === 'rejected' ? 'destructive' :
                     'default'
                   }>
