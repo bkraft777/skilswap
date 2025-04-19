@@ -1,4 +1,4 @@
-
+import { SKILLS } from '@/lib/constants';
 
 export const SKILLS = [
   'Web Development', 'Mobile Development', 'Data Science', 
@@ -21,4 +21,3 @@ export type Interest = typeof INTERESTS[number];
 
 export const AVAILABILITY_STATUSES = ['live', 'messaging', 'busy', 'offline'] as const;
 export type AvailabilityStatus = typeof AVAILABILITY_STATUSES[number];
-
