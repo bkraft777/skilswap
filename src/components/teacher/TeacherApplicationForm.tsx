@@ -1,30 +1,14 @@
-import React, { useState } from 'react';
+
+import React from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/integrations/supabase/types';
-import { useAuth } from '@/hooks/useAuth';
-
-type TeacherApplicationInsert = Database['public']['Tables']['teacher_applications']['Insert'];
-
-const teacherApplicationSchema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  expertise: z.array(z.string()).min(1, 'Please select at least one area of expertise'),
-  experienceYears: z.coerce.number().min(0, 'Experience years must be a positive number'),
-  teachingStyle: z.string().min(15, 'Please describe your teaching style in more detail (minimum 15 characters)'),
-  motivation: z.string().min(15, 'Please provide more details about your motivation (minimum 15 characters)')
-});
-
-type TeacherApplicationForm = z.infer<typeof teacherApplicationSchema>;
+import { teacherApplicationSchema, TeacherApplicationForm as TeacherApplicationFormType } from './schema/teacherApplicationSchema';
+import { useTeacherApplicationSubmit } from './hooks/useTeacherApplicationSubmit';
+import { PersonalInfoFields } from './components/PersonalInfoFields';
+import { ExpertiseFields } from './components/ExpertiseFields';
+import { TeachingDetailsFields } from './components/TeachingDetailsFields';
 
 const expertiseOptions = [
   'Programming',
@@ -40,11 +24,7 @@ const expertiseOptions = [
 ];
 
 const TeacherApplicationForm = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  
-  const form = useForm<TeacherApplicationForm>({
+  const form = useForm<TeacherApplicationFormType>({
     resolver: zodResolver(teacherApplicationSchema),
     defaultValues: {
       fullName: '',
@@ -56,227 +36,22 @@ const TeacherApplicationForm = () => {
     }
   });
 
+  const { handleSubmit } = useTeacherApplicationSubmit();
   const watchTeachingStyle = form.watch('teachingStyle');
   const watchMotivation = form.watch('motivation');
   const teachingStyleLength = watchTeachingStyle?.length || 0;
   const motivationLength = watchMotivation?.length || 0;
 
-  const onSubmit = async (data: TeacherApplicationForm) => {
-    try {
-      if (!user) {
-        console.error("No authenticated user found");
-        toast({
-          title: "Authentication Required",
-          description: "You must be logged in to submit a teacher application.",
-          variant: "destructive",
-        });
-        navigate('/auth');
-        return;
-      }
-
-      console.log("Current user ID:", user.id);
-      console.log("Current user email:", user.email);
-      console.log("Submitting teacher application with data:", data);
-
-      if (!user.id) {
-        console.error("User ID is missing or invalid");
-        toast({
-          title: "Authentication Error",
-          description: "Your user account appears to be invalid. Please try logging out and back in.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const applicationData: TeacherApplicationInsert = {
-        full_name: data.fullName,
-        email: data.email,
-        expertise: data.expertise,
-        experience_years: data.experienceYears,
-        teaching_style: data.teachingStyle,
-        motivation: data.motivation,
-        user_id: user.id,
-        status: 'pending'
-      };
-
-      console.log("Preparing to submit application with data:", applicationData);
-
-      const { data: result, error } = await supabase
-        .from('teacher_applications')
-        .insert(applicationData)
-        .select();
-
-      if (error) {
-        console.error("Error submitting application:", error);
-        console.error("Error code:", error.code);
-        console.error("Error message:", error.message);
-        console.error("Error details:", error.details);
-        throw error;
-      }
-
-      console.log("Application submitted successfully:", result);
-
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ 
-          skills: data.expertise 
-        })
-        .eq('id', user.id);
-
-      if (profileError) {
-        console.warn("Error updating profile skills:", profileError);
-        console.warn("Profile error code:", profileError.code);
-        console.warn("Profile error message:", profileError.message);
-        console.warn("Profile error details:", profileError.details);
-      }
-
-      toast({
-        title: "Application Submitted!",
-        description: "We'll review your application and get back to you soon.",
-      });
-
-      navigate('/');
-    } catch (error: any) {
-      console.error("Full error details:", error);
-      let errorMessage = "Failed to submit application. Please try again.";
-      
-      if (error.message) {
-        errorMessage = error.message;
-        
-        if (error.code === '23505') {
-          errorMessage = "You have already submitted an application. Please wait for a response.";
-        } else if (error.code === '23503') {
-          errorMessage = "There was an issue linking your application to your account. Please try logging out and back in.";
-        } else if (error.code === '42P01') {
-          errorMessage = "Database configuration issue. Please contact support.";
-        }
-      }
-      
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input placeholder="John Doe" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <PersonalInfoFields form={form} />
+        <ExpertiseFields form={form} expertiseOptions={expertiseOptions} />
+        <TeachingDetailsFields 
+          form={form} 
+          teachingStyleLength={teachingStyleLength}
+          motivationLength={motivationLength}
         />
-
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="john@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="expertise"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Areas of Expertise</FormLabel>
-              <FormControl>
-                <MultiSelect
-                  options={expertiseOptions}
-                  selectedOptions={field.value}
-                  onChange={field.onChange}
-                  placeholder="Select your areas of expertise"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="experienceYears"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Years of Experience</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  min="0" 
-                  placeholder="5"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                  value={field.value}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="teachingStyle"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Teaching Style</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Describe your teaching approach and methodology... (minimum 15 characters)"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription className="flex justify-between">
-                <span>Describe how you approach teaching and your methodology</span>
-                <span className={`text-sm ${teachingStyleLength < 15 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                  {teachingStyleLength}/15 characters minimum
-                </span>
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="motivation"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Why do you want to teach?</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Share your motivation for becoming a teacher... (minimum 15 characters)"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription className="flex justify-between">
-                <span>Share your passion and reasons for wanting to teach</span>
-                <span className={`text-sm ${motivationLength < 15 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                  {motivationLength}/15 characters minimum
-                </span>
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <Button type="submit" className="w-full">Submit Application</Button>
       </form>
     </Form>
