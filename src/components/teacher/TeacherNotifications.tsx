@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
@@ -14,18 +13,10 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-
-interface Notification {
-  id: string;
-  teacher_id: string;
-  message: string;
-  status: string;
-  created_at: string;
-  request_id: string;
-}
+import type { TeacherNotification } from '@/types/teacher';
 
 const TeacherNotifications = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<TeacherNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
@@ -35,10 +26,8 @@ const TeacherNotifications = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Fetch initial notifications
     fetchNotifications();
 
-    // Subscribe to new notifications
     const notificationsChannel = supabase
       .channel('teacher-notifications')
       .on(
@@ -50,11 +39,10 @@ const TeacherNotifications = () => {
           filter: `teacher_id=eq.${user.id}`,
         },
         (payload) => {
-          const newNotification = payload.new as Notification;
+          const newNotification = payload.new as TeacherNotification;
           setNotifications((prev) => [newNotification, ...prev]);
           setUnreadCount((prev) => prev + 1);
           
-          // Show a toast for new notifications
           toast({
             title: 'New help request',
             description: newNotification.message,
@@ -63,7 +51,6 @@ const TeacherNotifications = () => {
       )
       .subscribe();
 
-    // Clean up subscription
     return () => {
       supabase.removeChannel(notificationsChannel);
     };
@@ -96,7 +83,6 @@ const TeacherNotifications = () => {
         .update({ status: 'read' })
         .eq('id', notificationId);
 
-      // Update local state
       setNotifications(notifications.map(n => 
         n.id === notificationId ? { ...n, status: 'read' } : n
       ));
@@ -106,11 +92,9 @@ const TeacherNotifications = () => {
     }
   };
 
-  const handleNotificationClick = async (notification: Notification) => {
-    // Mark as read
+  const handleNotificationClick = async (notification: TeacherNotification) => {
     await markAsRead(notification.id);
 
-    // Connect to the help request
     try {
       const { data, error } = await supabase
         .from('teacher_connections')
@@ -124,7 +108,6 @@ const TeacherNotifications = () => {
 
       if (error) throw error;
 
-      // Navigate to the waiting room
       navigate(`/teacher-room/${notification.request_id}`);
       setIsOpen(false);
     } catch (error) {

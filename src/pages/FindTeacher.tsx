@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -16,8 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import type { HelpRequest } from '@/types/teacher';
 
-// List of available general skills
 const AVAILABLE_SKILLS = [
   'Programming', 'Digital Marketing', 'Design',
   'Writing', 'Music', 'Languages',
@@ -64,7 +63,6 @@ const FindTeacher = () => {
     setIsSearching(true);
 
     try {
-      // Get learner's information for the notification
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('username')

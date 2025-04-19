@@ -176,6 +176,33 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_help_requests: {
+        Row: {
+          created_at: string
+          id: string
+          learner_id: string
+          skill_category: string
+          specific_need: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          learner_id: string
+          skill_category: string
+          specific_need: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          learner_id?: string
+          skill_category?: string
+          specific_need?: string
+          status?: string
+        }
+        Relationships: []
+      }
       skill_offerings: {
         Row: {
           availability: string[]
@@ -297,6 +324,73 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      teacher_connections: {
+        Row: {
+          created_at: string
+          id: string
+          request_id: string
+          status: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          request_id: string
+          status?: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          request_id?: string
+          status?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_connections_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "skill_help_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          request_id: string
+          status: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          request_id: string
+          status?: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          request_id?: string
+          status?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_notifications_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "skill_help_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_points: {
         Row: {
