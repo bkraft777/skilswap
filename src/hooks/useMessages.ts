@@ -30,15 +30,15 @@ export const useMessages = (conversationId: string) => {
       if (error) throw error;
       
       // Create properly typed messages array, ensuring all required fields are present
-      const typedMessages: Message[] = (data || []).map(message => ({
+      const typedMessages = (data || []).map((message: any) => ({
         id: message.id,
         content: message.content,
         created_at: message.created_at,
         sender_id: message.sender_id,
         recipient_id: message.recipient_id,
         read_at: message.read_at,
-        conversation_id: conversationId // Ensure conversation_id is explicitly set
-      }));
+        conversation_id: message.conversation_id || conversationId
+      })) as Message[];
       
       return typedMessages;
     },
