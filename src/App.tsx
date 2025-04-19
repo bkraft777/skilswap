@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,7 +18,6 @@ import Marketplace from "./pages/Marketplace";
 import MySessions from "./pages/MySessions";
 import Dashboard from "./pages/Dashboard";
 import PointsManagement from "./pages/PointsManagement";
-import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
 
@@ -64,11 +64,6 @@ const App = () => (
               <PointsManagement />
             </ProtectedRoute>
           } />
-          <Route path="/messages/:conversationId" element={
-            <ProtectedRoute>
-              <Messages />
-            </ProtectedRoute>
-          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
@@ -77,3 +72,4 @@ const App = () => (
 );
 
 export default App;
+
