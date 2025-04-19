@@ -14,8 +14,8 @@ export interface Message {
   conversation_id: string;
 }
 
-// Create a separate fetch function outside the hook to avoid type inference issues
-const fetchMessagesForConversation = async (conversationId: string): Promise<Message[]> => {
+// Use a more explicit typing approach with a simple function declaration
+async function fetchMessagesForConversation(conversationId: string): Promise<Message[]> {
   const { data, error } = await supabase
     .from('messages')
     .select('*')
@@ -23,15 +23,18 @@ const fetchMessagesForConversation = async (conversationId: string): Promise<Mes
     .order('created_at', { ascending: true });
 
   if (error) throw error;
-  return data as Message[];
-};
+  // Explicitly cast data to Message[] and handle null case
+  return (data || []) as Message[];
+}
 
 export const useMessages = (conversationId: string) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  // Use explicit typing for the query result
   const { data: messages, isLoading } = useQuery({
     queryKey: ['messages', conversationId],
+    // Reference the standalone function directly
     queryFn: () => fetchMessagesForConversation(conversationId),
     enabled: !!conversationId && !!user,
   });
