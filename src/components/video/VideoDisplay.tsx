@@ -6,13 +6,15 @@ interface VideoDisplayProps {
   isMuted?: boolean;
   title: string;
   placeholderText?: string;
+  isScreenShare?: boolean;
 }
 
 const VideoDisplay = ({ 
   stream, 
   isMuted = false,
   title,
-  placeholderText = "Waiting for video..."
+  placeholderText = "Waiting for video...",
+  isScreenShare = false
 }: VideoDisplayProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -24,8 +26,15 @@ const VideoDisplay = ({
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
-      <h3 className="text-lg font-medium mb-2">{title}</h3>
-      <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
+      <h3 className="text-lg font-medium mb-2 flex items-center">
+        {title}
+        {isScreenShare && (
+          <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+            Screen
+          </span>
+        )}
+      </h3>
+      <div className={`${isScreenShare ? 'aspect-video' : 'aspect-video'} bg-gray-100 rounded-md overflow-hidden`}>
         <video
           ref={videoRef}
           autoPlay

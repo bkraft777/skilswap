@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -10,6 +11,7 @@ import { Loader2, X } from 'lucide-react';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import VideoControls from '@/components/video/VideoControls';
 import VideoDisplay from '@/components/video/VideoDisplay';
+import SessionInfo from '@/components/video/SessionInfo';
 
 const WaitingRoom = () => {
   const { requestId } = useParams();
@@ -25,14 +27,19 @@ const WaitingRoom = () => {
   const {
     localStream,
     remoteStream,
+    screenStream,
     isCameraOn,
     isMicOn,
+    isScreenSharing,
     isLive,
     connectionStatus,
+    sessionDetails,
     startLocalStream,
     stopLocalStream,
     toggleCamera,
     toggleMicrophone,
+    startScreenSharing,
+    stopScreenSharing,
   } = useWebRTC(requestId || '', 'learner');
 
   useEffect(() => {
@@ -169,6 +176,24 @@ const WaitingRoom = () => {
     });
   };
 
+  const handleStartScreenShare = async () => {
+    const stream = await startScreenSharing();
+    if (stream) {
+      toast({
+        title: 'Screen sharing started',
+        description: 'You are now sharing your screen with the teacher',
+      });
+    }
+  };
+
+  const handleStopScreenShare = () => {
+    stopScreenSharing();
+    toast({
+      title: 'Screen sharing stopped',
+      description: 'You have stopped sharing your screen',
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -213,11 +238,6 @@ const WaitingRoom = () => {
                 <p className="text-gray-600 mt-2">
                   <span className="font-medium">Status:</span> {teacherConnected ? 'Teacher connected' : 'Waiting for a teacher'}
                 </p>
-                {connectionStatus === 'connected' && (
-                  <p className="text-green-600 font-medium mt-2">
-                    Video connection established
-                  </p>
-                )}
               </div>
               
               {teacherConnected && teacherProfile && (
@@ -244,43 +264,72 @@ const WaitingRoom = () => {
                 </div>
               )}
 
-              {teacherConnected && (
-                <VideoControls
-                  isLive={isLive}
-                  isCameraOn={isCameraOn}
-                  isMicOn={isMicOn}
-                  onStartLive={handleStartLive}
-                  onEndLive={handleEndLive}
-                  onToggleCamera={toggleCamera}
-                  onToggleMic={toggleMicrophone}
-                />
-              )}
-              
-              {!teacherConnected && (
-                <div className="flex justify-center items-center p-4 bg-gray-50 rounded-md">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
-                  <p>Waiting for a teacher to connect...</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  {teacherConnected && (
+                    <VideoControls
+                      isLive={isLive}
+                      isCameraOn={isCameraOn}
+                      isMicOn={isMicOn}
+                      isScreenSharing={isScreenSharing}
+                      onStartLive={handleStartLive}
+                      onEndLive={handleEndLive}
+                      onToggleCamera={toggleCamera}
+                      onToggleMic={toggleMicrophone}
+                      onStartScreenShare={handleStartScreenShare}
+                      onStopScreenShare={handleStopScreenShare}
+                    />
+                  )}
+                  
+                  {!teacherConnected && (
+                    <div className="flex justify-center items-center p-4 bg-gray-50 rounded-md">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
+                      <p>Waiting for a teacher to connect...</p>
+                    </div>
+                  )}
                 </div>
-              )}
+                
+                <div>
+                  {connectionStatus !== 'disconnected' && (
+                    <SessionInfo
+                      startTime={sessionDetails.startTime}
+                      duration={sessionDetails.duration}
+                      connectionStatus={connectionStatus}
+                      participantType={sessionDetails.participantType}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           )}
           
           {isLive && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <VideoDisplay
-                stream={localStream}
-                isMuted={true}
-                title="Your Camera"
-              />
-              <VideoDisplay
-                stream={remoteStream}
-                title="Teacher's Camera"
-                placeholderText={
-                  connectionStatus === 'connecting' 
-                    ? "Connecting to teacher..." 
-                    : "Waiting for teacher to go live..."
-                }
-              />
+            <div className="grid grid-cols-1 gap-4 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <VideoDisplay
+                  stream={localStream}
+                  isMuted={true}
+                  title="Your Camera"
+                />
+                <VideoDisplay
+                  stream={remoteStream}
+                  title="Teacher's Camera"
+                  placeholderText={
+                    connectionStatus === 'connecting' 
+                      ? "Connecting to teacher..." 
+                      : "Waiting for teacher to go live..."
+                  }
+                />
+              </div>
+              
+              {isScreenSharing && (
+                <VideoDisplay
+                  stream={screenStream}
+                  isMuted={true}
+                  title="Your Screen Share"
+                  isScreenShare={true}
+                />
+              )}
             </div>
           )}
         </div>

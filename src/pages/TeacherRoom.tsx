@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -10,6 +11,7 @@ import { Loader2, X } from 'lucide-react';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import VideoControls from '@/components/video/VideoControls';
 import VideoDisplay from '@/components/video/VideoDisplay';
+import SessionInfo from '@/components/video/SessionInfo';
 
 const TeacherRoom = () => {
   const { requestId } = useParams();
@@ -23,14 +25,19 @@ const TeacherRoom = () => {
   const {
     localStream,
     remoteStream,
+    screenStream,
     isCameraOn,
     isMicOn,
+    isScreenSharing,
     isLive,
     connectionStatus,
+    sessionDetails,
     startLocalStream,
     stopLocalStream,
     toggleCamera,
     toggleMicrophone,
+    startScreenSharing,
+    stopScreenSharing,
   } = useWebRTC(requestId || '', 'teacher');
 
   useEffect(() => {
@@ -117,6 +124,24 @@ const TeacherRoom = () => {
     });
   };
 
+  const handleStartScreenShare = async () => {
+    const stream = await startScreenSharing();
+    if (stream) {
+      toast({
+        title: 'Screen sharing started',
+        description: 'You are now sharing your screen with the learner',
+      });
+    }
+  };
+
+  const handleStopScreenShare = () => {
+    stopScreenSharing();
+    toast({
+      title: 'Screen sharing stopped',
+      description: 'You have stopped sharing your screen',
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -178,41 +203,62 @@ const TeacherRoom = () => {
                 <p className="text-gray-600">
                   <span className="font-medium">Specific Need:</span> {requestDetails.specific_need}
                 </p>
-                {connectionStatus === 'connected' && (
-                  <p className="text-green-600 font-medium mt-2">
-                    Connected with learner
-                  </p>
-                )}
               </div>
 
-              <VideoControls
-                isLive={isLive}
-                isCameraOn={isCameraOn}
-                isMicOn={isMicOn}
-                onStartLive={handleStartLive}
-                onEndLive={handleEndLive}
-                onToggleCamera={toggleCamera}
-                onToggleMic={toggleMicrophone}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <VideoControls
+                    isLive={isLive}
+                    isCameraOn={isCameraOn}
+                    isMicOn={isMicOn}
+                    isScreenSharing={isScreenSharing}
+                    onStartLive={handleStartLive}
+                    onEndLive={handleEndLive}
+                    onToggleCamera={toggleCamera}
+                    onToggleMic={toggleMicrophone}
+                    onStartScreenShare={handleStartScreenShare}
+                    onStopScreenShare={handleStopScreenShare}
+                  />
+                </div>
+                <div>
+                  <SessionInfo
+                    startTime={sessionDetails.startTime}
+                    duration={sessionDetails.duration}
+                    connectionStatus={connectionStatus}
+                    participantType={sessionDetails.participantType}
+                  />
+                </div>
+              </div>
             </div>
           )}
           
           {isLive && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              <VideoDisplay
-                stream={localStream}
-                isMuted={true}
-                title="Your Camera"
-              />
-              <VideoDisplay
-                stream={remoteStream}
-                title="Learner's Camera"
-                placeholderText={
-                  connectionStatus === 'connecting' 
-                    ? "Connecting to learner..." 
-                    : "Waiting for learner to join..."
-                }
-              />
+            <div className="grid grid-cols-1 gap-4 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <VideoDisplay
+                  stream={localStream}
+                  isMuted={true}
+                  title="Your Camera"
+                />
+                <VideoDisplay
+                  stream={remoteStream}
+                  title="Learner's Camera"
+                  placeholderText={
+                    connectionStatus === 'connecting' 
+                      ? "Connecting to learner..." 
+                      : "Waiting for learner to join..."
+                  }
+                />
+              </div>
+              
+              {isScreenSharing && (
+                <VideoDisplay
+                  stream={screenStream}
+                  isMuted={true}
+                  title="Your Screen Share"
+                  isScreenShare={true}
+                />
+              )}
             </div>
           )}
         </div>

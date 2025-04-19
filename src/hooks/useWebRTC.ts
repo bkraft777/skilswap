@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,10 +7,18 @@ import { v4 as uuidv4 } from 'uuid';
 export interface WebRTCState {
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
+  screenStream: MediaStream | null;
   isCameraOn: boolean;
   isMicOn: boolean;
+  isScreenSharing: boolean;
   isLive: boolean;
   connectionStatus: 'disconnected' | 'connecting' | 'connected';
+  sessionDetails: {
+    startTime: string | null;
+    duration: number; // in seconds
+    participantId: string | null;
+    participantType: 'teacher' | 'learner' | null;
+  };
 }
 
 const configuration = {
@@ -22,16 +31,26 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
   const [state, setState] = useState<WebRTCState>({
     localStream: null,
     remoteStream: null,
+    screenStream: null,
     isCameraOn: true,
     isMicOn: true,
+    isScreenSharing: false,
     isLive: false,
     connectionStatus: 'disconnected',
+    sessionDetails: {
+      startTime: null,
+      duration: 0,
+      participantId: null,
+      participantType: null,
+    },
   });
   
   const peerConnection = useRef<RTCPeerConnection | null>(null);
   const signalingConnection = useRef<WebSocket | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
+  const screenStreamRef = useRef<MediaStream | null>(null);
   const clientId = useRef<string>(uuidv4());
+  const sessionIntervalRef = useRef<number | null>(null);
   const { toast } = useToast();
 
   // Initialize WebRTC
@@ -46,6 +65,10 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
       if (signalingConnection.current) {
         signalingConnection.current.close();
         signalingConnection.current = null;
+      }
+      if (sessionIntervalRef.current) {
+        window.clearInterval(sessionIntervalRef.current);
+        sessionIntervalRef.current = null;
       }
     };
   }, []);
@@ -159,6 +182,22 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
         }
         break;
         
+      case 'screen-share-start':
+        // Peer started screen sharing
+        toast({
+          title: 'Screen sharing',
+          description: `${role === 'teacher' ? 'Learner' : 'Teacher'} started sharing their screen`,
+        });
+        break;
+        
+      case 'screen-share-stop':
+        // Peer stopped screen sharing
+        toast({
+          title: 'Screen sharing stopped',
+          description: `${role === 'teacher' ? 'Learner' : 'Teacher'} stopped sharing their screen`,
+        });
+        break;
+        
       case 'peer-disconnected':
         // A peer disconnected
         toast({
@@ -172,11 +211,35 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
           peerConnection.current = null;
         }
         
+        // Stop the session timer
+        if (sessionIntervalRef.current) {
+          window.clearInterval(sessionIntervalRef.current);
+          sessionIntervalRef.current = null;
+        }
+        
+        // Log session data
+        const sessionData = {
+          request_id: requestId,
+          participant_role: role,
+          duration_seconds: state.sessionDetails.duration,
+          ended_at: new Date().toISOString(),
+        };
+        
+        try {
+          await supabase.from('session_logs').insert(sessionData);
+        } catch (error) {
+          console.error('Error logging session data:', error);
+        }
+        
         // Reset remote stream
         setState(prev => ({ 
           ...prev, 
           remoteStream: null,
-          connectionStatus: 'disconnected'
+          connectionStatus: 'disconnected',
+          sessionDetails: {
+            ...prev.sessionDetails,
+            participantId: null,
+          }
         }));
         break;
     }
@@ -219,7 +282,29 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
     peerConnection.current.onconnectionstatechange = () => {
       console.log('Connection state:', peerConnection.current?.connectionState);
       if (peerConnection.current?.connectionState === 'connected') {
-        setState(prev => ({ ...prev, connectionStatus: 'connected' }));
+        setState(prev => ({ 
+          ...prev, 
+          connectionStatus: 'connected',
+          sessionDetails: {
+            ...prev.sessionDetails,
+            startTime: new Date().toISOString(),
+            participantType: role,
+          }
+        }));
+        
+        // Start the session timer
+        if (sessionIntervalRef.current === null) {
+          sessionIntervalRef.current = window.setInterval(() => {
+            setState(prev => ({
+              ...prev,
+              sessionDetails: {
+                ...prev.sessionDetails,
+                duration: prev.sessionDetails.duration + 1
+              }
+            }));
+          }, 1000);
+        }
+        
         toast({
           title: 'Connected',
           description: `You are now connected with the ${role === 'teacher' ? 'learner' : 'teacher'}`,
@@ -227,6 +312,12 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
       } else if (peerConnection.current?.connectionState === 'disconnected' || 
                 peerConnection.current?.connectionState === 'failed') {
         setState(prev => ({ ...prev, connectionStatus: 'disconnected' }));
+        
+        // Stop the session timer
+        if (sessionIntervalRef.current) {
+          window.clearInterval(sessionIntervalRef.current);
+          sessionIntervalRef.current = null;
+        }
       }
     };
     
@@ -312,10 +403,35 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
       }));
     }
     
+    // Stop screen sharing if active
+    stopScreenSharing();
+    
     // Close signaling connection
     if (signalingConnection.current) {
       signalingConnection.current.close();
       signalingConnection.current = null;
+    }
+    
+    // Stop the session timer
+    if (sessionIntervalRef.current) {
+      window.clearInterval(sessionIntervalRef.current);
+      sessionIntervalRef.current = null;
+      
+      // Log session data if we were connected
+      if (state.connectionStatus === 'connected') {
+        const sessionData = {
+          request_id: requestId,
+          participant_role: role,
+          duration_seconds: state.sessionDetails.duration,
+          ended_at: new Date().toISOString(),
+        };
+        
+        try {
+          supabase.from('session_logs').insert(sessionData);
+        } catch (error) {
+          console.error('Error logging session data:', error);
+        }
+      }
     }
   };
 
@@ -342,6 +458,98 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
       }));
     }
   };
+  
+  const startScreenSharing = async () => {
+    try {
+      if (screenStreamRef.current) {
+        // Already sharing screen
+        return;
+      }
+      
+      // Get screen media stream
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true
+      });
+      
+      screenStreamRef.current = stream;
+      
+      // Replace video track in peer connection
+      if (peerConnection.current) {
+        const videoTrack = stream.getVideoTracks()[0];
+        
+        const senders = peerConnection.current.getSenders();
+        const videoSender = senders.find(sender => 
+          sender.track && sender.track.kind === 'video'
+        );
+        
+        if (videoSender) {
+          videoSender.replaceTrack(videoTrack);
+        } else {
+          peerConnection.current.addTrack(videoTrack, stream);
+        }
+      }
+      
+      // Notify peer that we're screen sharing
+      sendSignalingMessage({
+        type: 'screen-share-start'
+      });
+      
+      // Set up track ended event
+      stream.getVideoTracks()[0].onended = () => {
+        stopScreenSharing();
+      };
+      
+      setState(prev => ({
+        ...prev,
+        screenStream: stream,
+        isScreenSharing: true
+      }));
+      
+      return stream;
+    } catch (error) {
+      console.error('Error starting screen sharing:', error);
+      toast({
+        title: 'Error',
+        description: 'Could not start screen sharing',
+        variant: 'destructive',
+      });
+      return null;
+    }
+  };
+  
+  const stopScreenSharing = () => {
+    if (screenStreamRef.current) {
+      // Stop all tracks
+      screenStreamRef.current.getTracks().forEach(track => track.stop());
+      
+      // Replace video track back to camera
+      if (peerConnection.current && localStreamRef.current) {
+        const videoTrack = localStreamRef.current.getVideoTracks()[0];
+        
+        const senders = peerConnection.current.getSenders();
+        const videoSender = senders.find(sender => 
+          sender.track && sender.track.kind === 'video'
+        );
+        
+        if (videoSender && videoTrack) {
+          videoSender.replaceTrack(videoTrack);
+        }
+      }
+      
+      // Notify peer that we stopped screen sharing
+      sendSignalingMessage({
+        type: 'screen-share-stop'
+      });
+      
+      screenStreamRef.current = null;
+      setState(prev => ({
+        ...prev,
+        screenStream: null,
+        isScreenSharing: false
+      }));
+    }
+  };
 
   return {
     ...state,
@@ -349,5 +557,7 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
     stopLocalStream,
     toggleCamera,
     toggleMicrophone,
+    startScreenSharing,
+    stopScreenSharing,
   };
 };
