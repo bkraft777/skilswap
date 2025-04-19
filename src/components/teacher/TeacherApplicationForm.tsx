@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,6 +12,7 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
+import { useAuth } from '@/hooks/useAuth';
 
 type TeacherApplicationInsert = Database['public']['Tables']['teacher_applications']['Insert'];
 
@@ -41,6 +43,7 @@ const expertiseOptions = [
 const TeacherApplicationForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const form = useForm<TeacherApplicationForm>({
     resolver: zodResolver(teacherApplicationSchema),
@@ -56,20 +59,53 @@ const TeacherApplicationForm = () => {
 
   const onSubmit = async (data: TeacherApplicationForm) => {
     try {
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "You must be logged in to submit a teacher application.",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
+
+      console.log("Current user ID:", user.id);
+      console.log("Submitting teacher application with data:", data);
+
       const applicationData: TeacherApplicationInsert = {
         full_name: data.fullName,
         email: data.email,
         expertise: data.expertise,
         experience_years: data.experienceYears,
         teaching_style: data.teachingStyle,
-        motivation: data.motivation
+        motivation: data.motivation,
+        user_id: user.id  // Explicitly link the application to the current user
       };
 
-      const { error } = await supabase
+      const { data: result, error } = await supabase
         .from('teacher_applications')
-        .insert(applicationData);
+        .insert(applicationData)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error submitting application:", error);
+        throw error;
+      }
+
+      console.log("Application submitted successfully:", result);
+
+      // Also update the user's profile with teaching skills
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          skills: data.expertise 
+        })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.warn("Error updating profile skills:", profileError);
+        // Continue with success message even if profile update fails
+      }
 
       toast({
         title: "Application Submitted!",
@@ -78,9 +114,10 @@ const TeacherApplicationForm = () => {
 
       navigate('/');
     } catch (error: any) {
+      console.error("Full error details:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to submit application. Please try again.",
         variant: "destructive",
       });
     }
