@@ -15,7 +15,10 @@ const Messages = () => {
 
   const handleSendMessage = async (content: string) => {
     try {
-      await sendMessage.mutateAsync({ content, recipientId: conversationId || '' });
+      await sendMessage.mutateAsync({ 
+        content, 
+        recipientId: conversationId || '' 
+      });
     } catch (error: any) {
       toast({
         title: "Error sending message",

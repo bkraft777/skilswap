@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/hooks/useAuth';
 
-// Define the Message interface outside of any function to prevent circular references
+// Define a simpler Message interface
 export interface Message {
   id: string;
   content: string;
@@ -18,30 +18,21 @@ export const useMessages = (conversationId: string) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  const fetchMessages = async (): Promise<Message[]> => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    
+    return (data || []) as Message[];
+  };
+
   const { data: messages, isLoading } = useQuery({
     queryKey: ['messages', conversationId],
-    queryFn: async (): Promise<Message[]> => {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-      
-      // Create properly typed messages array with explicit type casting
-      const typedMessages: Message[] = (data || []).map((message: any) => ({
-        id: message.id,
-        content: message.content,
-        created_at: message.created_at,
-        sender_id: message.sender_id,
-        recipient_id: message.recipient_id,
-        read_at: message.read_at,
-        conversation_id: message.conversation_id || conversationId
-      }));
-      
-      return typedMessages;
-    },
+    queryFn: fetchMessages,
     enabled: !!conversationId && !!user,
   });
 

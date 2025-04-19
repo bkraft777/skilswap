@@ -3,15 +3,13 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from '@/hooks/useAuth';
+import { Message } from '@/hooks/useMessages';
 
-interface Message {
-  id: string;
-  content: string;
-  sender_id: string;
-  created_at: string;
+interface MessageListProps {
+  messages: Message[];
 }
 
-export const MessageList = ({ messages }: { messages: Message[] }) => {
+export const MessageList = ({ messages }: MessageListProps) => {
   const { user } = useAuth();
 
   return (
