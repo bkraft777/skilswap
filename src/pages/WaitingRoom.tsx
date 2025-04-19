@@ -69,6 +69,7 @@ const WaitingRoom = () => {
 
         if (!connectionError && connectionData) {
           setTeacherConnected(true);
+          setTeacherId(connectionData.teacher_id);
           
           const { data: teacherData, error: teacherError } = await supabase
             .from('profiles')
@@ -78,7 +79,7 @@ const WaitingRoom = () => {
             
           if (!teacherError) {
             setTeacherProfile(teacherData);
-            setTeacherId(teacherData.id);
+            setTeacherId(connectionData.teacher_id);
           }
         }
       } catch (error) {
