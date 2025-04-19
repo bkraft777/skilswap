@@ -24,6 +24,13 @@ const HeroSection = () => {
       <div className="absolute -bottom-32 -left-20 w-80 h-80 gradient-circle opacity-20 animate-rotate-gradient"></div>
       
       <div className="section-container relative z-10 py-12 md:py-20">
+        {user && (
+          <div className="mb-4 text-center md:text-left">
+            <h2 className="text-2xl md:text-3xl font-semibold text-gray-800">
+              Welcome, {user.email?.split('@')[0] || 'Learner'}!
+            </h2>
+          </div>
+        )}
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0 md:pr-8">
             <h1 className="tagline mb-6 text-center md:text-left">
@@ -87,3 +94,4 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
+
