@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { formatUserName } from '@/lib/utils';
 
 export const useTeacherSearch = (userId: string | undefined) => {
   const [isSearching, setIsSearching] = useState(false);
@@ -40,7 +41,7 @@ export const useTeacherSearch = (userId: string | undefined) => {
 
       if (profileError) throw profileError;
 
-      const learnerName = profileData?.username || 'A learner';
+      const learnerName = formatUserName(profileData?.username);
 
       const { data: teachers, error: teachersError } = await supabase
         .from('profiles')
@@ -55,6 +56,7 @@ export const useTeacherSearch = (userId: string | undefined) => {
           description: `No teachers are currently available for ${selectedSkill}. Please try another skill or check back later.`,
           variant: "destructive",
         });
+        setIsSearching(false);
         return;
       }
 
@@ -71,12 +73,15 @@ export const useTeacherSearch = (userId: string | undefined) => {
 
       if (requestError) throw requestError;
 
+      // Create more descriptive notification message
+      const notificationMessage = `${learnerName} is looking for help with ${selectedSkill}: "${specificNeed}"`;
+      
       const notificationPromises = teachers.map(teacher => 
         supabase
           .from('teacher_notifications')
           .insert({
             teacher_id: teacher.id,
-            message: `${learnerName} is looking for help with ${specificNeed} in ${selectedSkill}`,
+            message: notificationMessage,
             request_id: requestData.id,
             status: 'unread'
           })
@@ -97,7 +102,6 @@ export const useTeacherSearch = (userId: string | undefined) => {
         description: "An error occurred while searching for teachers. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsSearching(false);
     }
   };

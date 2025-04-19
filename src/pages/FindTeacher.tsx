@@ -7,7 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeacherSearch } from '@/hooks/useTeacherSearch';
-import SkillSelector from '@/components/teacher/SkillSelector';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { SKILL_CATEGORIES } from '@/lib/constants';
 
 const FindTeacher = () => {
   const [selectedSkill, setSelectedSkill] = useState<string>('');
@@ -30,13 +37,27 @@ const FindTeacher = () => {
           </p>
 
           <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
-            <SkillSelector 
-              value={selectedSkill}
-              onChange={setSelectedSkill}
-            />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">What skill do you need help with?</label>
+              <Select
+                value={selectedSkill}
+                onValueChange={setSelectedSkill}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a skill" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SKILL_CATEGORIES.map((skill) => (
+                    <SelectItem key={skill} value={skill}>
+                      {skill}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium">What do you need help with?</label>
+              <label className="block text-sm font-medium">What do you need help with specifically?</label>
               <Input
                 value={specificNeed}
                 onChange={(e) => setSpecificNeed(e.target.value)}
@@ -48,9 +69,9 @@ const FindTeacher = () => {
             <Button 
               onClick={handleSearch} 
               className="w-full" 
-              disabled={isSearching}
+              disabled={isSearching || !selectedSkill || !specificNeed.trim()}
             >
-              {isSearching ? 'Searching...' : 'Search for Teachers'}
+              {isSearching ? 'Sending Request...' : 'Search for Teachers'}
               <Search className="ml-2 h-4 w-4" />
             </Button>
           </div>

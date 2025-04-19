@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -7,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, Video } from 'lucide-react';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import VideoControls from '@/components/video/VideoControls';
 import VideoDisplay from '@/components/video/VideoDisplay';
 import SessionInfo from '@/components/video/SessionInfo';
+import PreSessionChat from '@/components/video/PreSessionChat';
 
 const WaitingRoom = () => {
   const { requestId } = useParams();
@@ -23,6 +23,7 @@ const WaitingRoom = () => {
   const [requestDetails, setRequestDetails] = useState<any>(null);
   const [teacherConnected, setTeacherConnected] = useState(false);
   const [teacherProfile, setTeacherProfile] = useState<any>(null);
+  const [teacherId, setTeacherId] = useState<string | undefined>(undefined);
 
   const {
     localStream,
@@ -77,6 +78,7 @@ const WaitingRoom = () => {
             
           if (!teacherError) {
             setTeacherProfile(teacherData);
+            setTeacherId(teacherData.id);
           }
         }
       } catch (error) {
@@ -266,22 +268,31 @@ const WaitingRoom = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  {teacherConnected && (
-                    <VideoControls
-                      isLive={isLive}
-                      isCameraOn={isCameraOn}
-                      isMicOn={isMicOn}
-                      isScreenSharing={isScreenSharing}
-                      onStartLive={handleStartLive}
-                      onEndLive={handleEndLive}
-                      onToggleCamera={toggleCamera}
-                      onToggleMic={toggleMicrophone}
-                      onStartScreenShare={handleStartScreenShare}
-                      onStopScreenShare={handleStopScreenShare}
-                    />
-                  )}
-                  
-                  {!teacherConnected && (
+                  {teacherConnected ? (
+                    isLive ? (
+                      <VideoControls
+                        isLive={isLive}
+                        isCameraOn={isCameraOn}
+                        isMicOn={isMicOn}
+                        isScreenSharing={isScreenSharing}
+                        onStartLive={handleStartLive}
+                        onEndLive={handleEndLive}
+                        onToggleCamera={toggleCamera}
+                        onToggleMic={toggleMicrophone}
+                        onStartScreenShare={handleStartScreenShare}
+                        onStopScreenShare={handleStopScreenShare}
+                      />
+                    ) : (
+                      <Button 
+                        onClick={handleStartLive} 
+                        className="w-full"
+                        size="lg"
+                      >
+                        <Video className="mr-2 h-5 w-5" />
+                        Go Live
+                      </Button>
+                    )
+                  ) : (
                     <div className="flex justify-center items-center p-4 bg-gray-50 rounded-md">
                       <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
                       <p>Waiting for a teacher to connect...</p>
@@ -300,6 +311,16 @@ const WaitingRoom = () => {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+          
+          {teacherConnected && !isLive && (
+            <div className="mb-8">
+              <PreSessionChat 
+                requestId={requestId || ''}
+                otherParticipantId={teacherId}
+                otherParticipantName={teacherProfile?.username}
+              />
             </div>
           )}
           

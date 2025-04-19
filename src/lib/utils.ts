@@ -24,3 +24,18 @@ export function formatDuration(seconds: number): string {
   
   return parts.join(':');
 }
+
+/**
+ * Format user name for display in notifications
+ */
+export function formatUserName(username: string | null | undefined): string {
+  if (!username) return 'A learner';
+  
+  // If the username contains a space, use the first name
+  if (username.includes(' ')) {
+    return username.split(' ')[0];
+  }
+  
+  // Otherwise just use the username
+  return username;
+}

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -7,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, Video } from 'lucide-react';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import VideoControls from '@/components/video/VideoControls';
 import VideoDisplay from '@/components/video/VideoDisplay';
 import SessionInfo from '@/components/video/SessionInfo';
+import PreSessionChat from '@/components/video/PreSessionChat';
 
 const TeacherRoom = () => {
   const { requestId } = useParams();
@@ -21,6 +21,7 @@ const TeacherRoom = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [requestDetails, setRequestDetails] = useState<any>(null);
   const [learnerProfile, setLearnerProfile] = useState<any>(null);
+  const [learnerId, setLearnerId] = useState<string | undefined>(undefined);
 
   const {
     localStream,
@@ -56,6 +57,7 @@ const TeacherRoom = () => {
 
         if (error) throw error;
         setRequestDetails(data);
+        setLearnerId(data.learner_id);
 
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
@@ -207,18 +209,29 @@ const TeacherRoom = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <VideoControls
-                    isLive={isLive}
-                    isCameraOn={isCameraOn}
-                    isMicOn={isMicOn}
-                    isScreenSharing={isScreenSharing}
-                    onStartLive={handleStartLive}
-                    onEndLive={handleEndLive}
-                    onToggleCamera={toggleCamera}
-                    onToggleMic={toggleMicrophone}
-                    onStartScreenShare={handleStartScreenShare}
-                    onStopScreenShare={handleStopScreenShare}
-                  />
+                  {isLive ? (
+                    <VideoControls
+                      isLive={isLive}
+                      isCameraOn={isCameraOn}
+                      isMicOn={isMicOn}
+                      isScreenSharing={isScreenSharing}
+                      onStartLive={handleStartLive}
+                      onEndLive={handleEndLive}
+                      onToggleCamera={toggleCamera}
+                      onToggleMic={toggleMicrophone}
+                      onStartScreenShare={handleStartScreenShare}
+                      onStopScreenShare={handleStopScreenShare}
+                    />
+                  ) : (
+                    <Button 
+                      onClick={handleStartLive} 
+                      className="w-full"
+                      size="lg"
+                    >
+                      <Video className="mr-2 h-5 w-5" />
+                      Go Live
+                    </Button>
+                  )}
                 </div>
                 <div>
                   <SessionInfo
@@ -229,6 +242,16 @@ const TeacherRoom = () => {
                   />
                 </div>
               </div>
+            </div>
+          )}
+          
+          {!isLive && learnerId && (
+            <div className="mb-8">
+              <PreSessionChat 
+                requestId={requestId || ''}
+                otherParticipantId={learnerId}
+                otherParticipantName={learnerProfile?.username}
+              />
             </div>
           )}
           
