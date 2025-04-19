@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Menu, X, LayoutDashboard, Coins, GraduationCap, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,12 +5,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ['isAdmin'],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .single();
+      
+      if (error) return false;
+      return !!data;
+    }
+  });
 
   const handleLogout = async () => {
     try {
@@ -79,6 +95,14 @@ const Navbar = () => {
               <Button onClick={() => navigate('/auth')} className="button-primary">
                 Join Now
               </Button>
+            )}
+            {user && isAdmin && (
+              <Link
+                to="/admin"
+                className="font-medium hover:text-silswap-pink transition-colors"
+              >
+                Admin Dashboard
+              </Link>
             )}
           </div>
 
