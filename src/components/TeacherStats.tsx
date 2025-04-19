@@ -52,7 +52,9 @@ const TeacherStats = () => {
       );
       
       return uniqueTeachers;
-    }
+    },
+    // Add this refetchInterval to ensure fresh data
+    refetchInterval: 10000  // Refresh every 10 seconds
   });
 
   if (isLoading) return <TeacherListSkeleton />;
