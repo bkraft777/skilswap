@@ -52,3 +52,4 @@ const NavLinks = ({ user, isAdmin, isMobile = false }: NavLinksProps) => {
 };
 
 export default NavLinks;
+
