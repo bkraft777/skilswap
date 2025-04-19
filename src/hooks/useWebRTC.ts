@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -66,9 +65,8 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
       
       const { data: { token } } = await supabase.functions.invoke('get-token');
 
-      // Create signaling connection
-      const supabaseUrl = supabase.supabaseUrl;
-      const projectId = supabaseUrl.split('//')[1].split('.')[0];
+      // Create signaling connection - using the SUPABASE_URL constant instead of accessing protected property
+      const projectId = "qavxzwmkjpjbpbtxtoqb"; // Using the project ID directly from our Supabase config
       const url = `wss://${projectId}.supabase.co/functions/v1/signaling?room=${requestId}&clientId=${clientId.current}`;
       
       signalingConnection.current = new WebSocket(url);
