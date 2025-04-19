@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -13,84 +13,16 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useTeacherNotifications } from '@/hooks/useTeacherNotifications';
+import NotificationItem from './NotificationItem';
 import type { TeacherNotification } from '@/types/teacher';
 
 const TeacherNotifications = () => {
-  const [notifications, setNotifications] = useState<TeacherNotification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user) return;
-
-    fetchNotifications();
-
-    const notificationsChannel = supabase
-      .channel('teacher-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'teacher_notifications',
-          filter: `teacher_id=eq.${user.id}`,
-        },
-        (payload) => {
-          const newNotification = payload.new as TeacherNotification;
-          setNotifications((prev) => [newNotification, ...prev]);
-          setUnreadCount((prev) => prev + 1);
-          
-          toast({
-            title: 'New help request',
-            description: newNotification.message,
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(notificationsChannel);
-    };
-  }, [user, toast]);
-
-  const fetchNotifications = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('teacher_notifications')
-        .select('*')
-        .eq('teacher_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-
-      setNotifications(data || []);
-      setUnreadCount(data?.filter(n => n.status === 'unread').length || 0);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    }
-  };
-
-  const markAsRead = async (notificationId: string) => {
-    try {
-      await supabase
-        .from('teacher_notifications')
-        .update({ status: 'read' })
-        .eq('id', notificationId);
-
-      setNotifications(notifications.map(n => 
-        n.id === notificationId ? { ...n, status: 'read' } : n
-      ));
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-    }
-  };
+  const { notifications, unreadCount, markAsRead } = useTeacherNotifications(user?.id);
 
   const handleNotificationClick = async (notification: TeacherNotification) => {
     await markAsRead(notification.id);
@@ -139,22 +71,11 @@ const TeacherNotifications = () => {
         <DropdownMenuSeparator />
         {notifications.length > 0 ? (
           notifications.map((notification) => (
-            <DropdownMenuItem
+            <NotificationItem
               key={notification.id}
-              className={`p-3 cursor-pointer ${
-                notification.status === 'unread' ? 'bg-gray-50' : ''
-              }`}
-              onClick={() => handleNotificationClick(notification)}
-            >
-              <div className="flex flex-col">
-                <p className="text-sm">
-                  {notification.message}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {new Date(notification.created_at).toLocaleString()}
-                </p>
-              </div>
-            </DropdownMenuItem>
+              notification={notification}
+              onClick={handleNotificationClick}
+            />
           ))
         ) : (
           <div className="p-4 text-center text-gray-500">
