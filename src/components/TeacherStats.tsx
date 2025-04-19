@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -5,15 +6,20 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 type Teacher = {
   name: string;
   skills: string[];
+  id?: string; // Add ID for navigation
 };
 
 const TeacherStats = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   
   const { data: teachers, isLoading, error, refetch } = useQuery({
     queryKey: ['availableTeachers'],
@@ -23,7 +29,7 @@ const TeacherStats = () => {
       // First try to get from featured_teachers table
       let { data: featuredTeachers, error: featuredError } = await supabase
         .from('featured_teachers')
-        .select('name, skills')
+        .select('name, skills, id')
         .eq('is_active', true);
       
       console.log('Featured teachers:', featuredTeachers);
@@ -74,7 +80,8 @@ const TeacherStats = () => {
       if (featuredTeachers && featuredTeachers.length > 0) {
         allTeachers.push(...featuredTeachers.map(teacher => ({
           name: teacher.name,
-          skills: teacher.skills
+          skills: teacher.skills,
+          id: teacher.id
         })));
       }
       
@@ -83,7 +90,8 @@ const TeacherStats = () => {
         console.log(`Found ${applicationTeachers.length} approved teachers from applications`);
         allTeachers.push(...applicationTeachers.map(teacher => ({
           name: teacher.full_name,
-          skills: teacher.expertise
+          skills: teacher.expertise,
+          id: teacher.user_id // Use user_id as the teacher's ID
         })));
       } else {
         console.log('No approved teachers found in applications');
@@ -98,7 +106,8 @@ const TeacherStats = () => {
             name: profile.username || 
                    (applicationTeachers?.find(t => t.user_id === profile.id)?.full_name) || 
                    `Teacher ${profile.id.substring(0, 4)}`,
-            skills: profile.skills || []
+            skills: profile.skills || [],
+            id: profile.id // Add profile ID for navigation
           }))
         );
       }
@@ -127,6 +136,70 @@ const TeacherStats = () => {
     initialFetch();
   }, [refetch]);
 
+  // Handle teacher click to start a session
+  const handleTeacherClick = async (teacher: Teacher) => {
+    if (!user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to connect with a teacher",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    if (!teacher.id) {
+      toast({
+        title: "Connection error",
+        description: "Unable to connect with this teacher. Please try another teacher.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Create a help request
+      const { data: requestData, error: requestError } = await supabase
+        .from('skill_help_requests')
+        .insert({
+          learner_id: user.id,
+          skill_category: teacher.skills[0] || 'General',
+          specific_need: 'Live help session',
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (requestError) throw requestError;
+
+      // Create a teacher connection
+      const { error: connectionError } = await supabase
+        .from('teacher_connections')
+        .insert({
+          teacher_id: teacher.id,
+          request_id: requestData.id,
+          status: 'connected'
+        });
+
+      if (connectionError) throw connectionError;
+
+      // Navigate to waiting room
+      toast({
+        title: "Connection initiated",
+        description: `Connecting you with ${teacher.name}`,
+      });
+      
+      navigate(`/waiting-room/${requestData.id}`);
+    } catch (error) {
+      console.error('Error connecting with teacher:', error);
+      toast({
+        title: "Connection failed",
+        description: "Failed to connect with teacher. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) return <TeacherListSkeleton />;
   if (error) return <div className="text-red-500">Error loading teachers</div>;
 
@@ -141,7 +214,11 @@ const TeacherStats = () => {
       ) : (
         <div className="space-y-3">
           {teachers.map((teacher, index) => (
-            <div key={index} className="p-3 border rounded-md hover:bg-gray-50">
+            <div 
+              key={index} 
+              className="p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => handleTeacherClick(teacher)}
+            >
               <p className="font-medium break-words">{teacher.name}</p>
               {teacher.skills && teacher.skills.length > 0 ? (
                 <div className="mt-1 flex flex-wrap gap-1">
