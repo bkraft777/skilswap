@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/hooks/useAuth';
 
-// Define the Message interface separate from the function to avoid circular references
-interface Message {
+// Define the Message interface outside of any function to prevent circular references
+export interface Message {
   id: string;
   content: string;
   created_at: string;
@@ -20,7 +20,7 @@ export const useMessages = (conversationId: string) => {
 
   const { data: messages, isLoading } = useQuery({
     queryKey: ['messages', conversationId],
-    queryFn: async (): Promise<Message[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -30,7 +30,7 @@ export const useMessages = (conversationId: string) => {
       if (error) throw error;
       
       // Create properly typed messages array, ensuring all required fields are present
-      const typedMessages: Message[] = data?.map(message => ({
+      const typedMessages: Message[] = (data || []).map(message => ({
         id: message.id,
         content: message.content,
         created_at: message.created_at,
@@ -38,7 +38,7 @@ export const useMessages = (conversationId: string) => {
         recipient_id: message.recipient_id,
         read_at: message.read_at,
         conversation_id: conversationId // Ensure conversation_id is explicitly set
-      })) || [];
+      }));
       
       return typedMessages;
     },
