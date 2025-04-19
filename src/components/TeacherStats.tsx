@@ -90,13 +90,14 @@ const TeacherStats = () => {
         console.log('No approved teachers found in applications');
       }
       
-      // Add teachers from profiles with skills
+      // Add teachers from profiles with skills - ensure we use usernames not IDs
       if (profilesWithSkills && profilesWithSkills.length > 0) {
         console.log(`Found ${profilesWithSkills.length} profiles with skills`);
         allTeachers.push(...profilesWithSkills
           .filter(profile => profile.skills && profile.skills.length > 0)
           .map(profile => ({
-            name: profile.username || `Teacher-${profile.id.substring(0, 8)}`,
+            // Use username if available, or a friendly "Teacher" prefix instead of showing UUID
+            name: profile.username ? profile.username : `Teacher ${profile.id.substring(0, 4)}`,
             skills: profile.skills || []
           }))
         );
