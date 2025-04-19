@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, MessageSquare, Video, X } from 'lucide-react';
+import { Loader2, MessageSquare, Video, X, Camera, Mic, MicOff, CameraOff } from 'lucide-react';
 
 const TeacherRoom = () => {
   const { requestId } = useParams();
@@ -18,6 +18,17 @@ const TeacherRoom = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [requestDetails, setRequestDetails] = useState<any>(null);
   const [learnerProfile, setLearnerProfile] = useState<any>(null);
+  const [isLiveSession, setIsLiveSession] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isMicOn, setIsMicOn] = useState(true);
+
+  // Refs for video elements
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  
+  // Refs for streams
+  const localStreamRef = useRef<MediaStream | null>(null);
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -64,6 +75,20 @@ const TeacherRoom = () => {
 
   const leaveRoom = async () => {
     try {
+      // Stop any active streams
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => track.stop());
+        localStreamRef.current = null;
+      }
+      
+      // Close peer connection
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null;
+      }
+
+      setIsLiveSession(false);
+
       // Update connection status
       await supabase
         .from('teacher_connections')
@@ -94,11 +119,70 @@ const TeacherRoom = () => {
     });
   };
 
+  const toggleCamera = () => {
+    if (localStreamRef.current) {
+      localStreamRef.current.getVideoTracks().forEach(track => {
+        track.enabled = !isCameraOn;
+      });
+      setIsCameraOn(!isCameraOn);
+    }
+  };
+
+  const toggleMicrophone = () => {
+    if (localStreamRef.current) {
+      localStreamRef.current.getAudioTracks().forEach(track => {
+        track.enabled = !isMicOn;
+      });
+      setIsMicOn(!isMicOn);
+    }
+  };
+
   const startLiveSession = async () => {
-    // In a future implementation, this would start a live video session
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: true, 
+        audio: true 
+      });
+      
+      localStreamRef.current = stream;
+      
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
+      
+      setIsLiveSession(true);
+      
+      toast({
+        title: 'Live session started',
+        description: 'Your camera and microphone are now active',
+      });
+      
+      // In a real implementation, we would set up WebRTC here
+      // and connect to the other user
+      
+    } catch (error) {
+      console.error('Error starting live session:', error);
+      toast({
+        title: 'Error',
+        description: 'Could not access camera or microphone',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const endLiveSession = () => {
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current = null;
+    }
+    
+    setIsLiveSession(false);
+    setIsCameraOn(true);
+    setIsMicOn(true);
+    
     toast({
-      title: 'Coming soon!',
-      description: 'Live video sessions will be implemented in the next phase',
+      title: 'Live session ended',
+      description: 'Your camera and microphone have been turned off',
     });
   };
 
@@ -119,7 +203,7 @@ const TeacherRoom = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Teacher Room</h1>
             <Button 
@@ -165,22 +249,80 @@ const TeacherRoom = () => {
                 </p>
               </div>
               
-              <div className="flex gap-4">
-                <Button 
-                  onClick={startChat}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Start Chat
-                </Button>
-                <Button 
-                  onClick={startLiveSession}
-                  className="flex-1"
-                >
-                  <Video className="mr-2 h-4 w-4" />
-                  Go Live
-                </Button>
+              {!isLiveSession ? (
+                <div className="flex gap-4">
+                  <Button 
+                    onClick={startChat}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Start Chat
+                  </Button>
+                  <Button 
+                    onClick={startLiveSession}
+                    className="flex-1"
+                  >
+                    <Video className="mr-2 h-4 w-4" />
+                    Go Live
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-4">
+                  <Button 
+                    onClick={toggleCamera}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    {isCameraOn ? <Camera className="mr-2 h-4 w-4" /> : <CameraOff className="mr-2 h-4 w-4" />}
+                    {isCameraOn ? 'Camera On' : 'Camera Off'}
+                  </Button>
+                  <Button 
+                    onClick={toggleMicrophone}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    {isMicOn ? <Mic className="mr-2 h-4 w-4" /> : <MicOff className="mr-2 h-4 w-4" />}
+                    {isMicOn ? 'Mic On' : 'Mic Off'}
+                  </Button>
+                  <Button 
+                    onClick={endLiveSession}
+                    variant="destructive"
+                    className="flex-1"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    End Live Session
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {isLiveSession && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="bg-white p-4 rounded-lg shadow-md">
+                <h3 className="text-lg font-medium mb-2">Your Camera</h3>
+                <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
+                  <video 
+                    ref={localVideoRef} 
+                    autoPlay 
+                    muted 
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg shadow-md">
+                <h3 className="text-lg font-medium mb-2">Learner's Camera</h3>
+                <div className="aspect-video bg-gray-100 rounded-md overflow-hidden flex items-center justify-center">
+                  <video 
+                    ref={remoteVideoRef} 
+                    autoPlay 
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                  <p className="text-gray-500">Waiting for learner to join...</p>
+                </div>
               </div>
             </div>
           )}
