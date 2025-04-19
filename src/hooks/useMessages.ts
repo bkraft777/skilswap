@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/hooks/useAuth';
 
+// Define the Message interface separate from the function to avoid circular references
 interface Message {
   id: string;
   content: string;
@@ -27,7 +28,19 @@ export const useMessages = (conversationId: string) => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      return data || [];
+      
+      // Ensure data matches our Message interface by mapping it
+      const typedMessages = data?.map(message => ({
+        id: message.id,
+        content: message.content,
+        created_at: message.created_at,
+        sender_id: message.sender_id,
+        recipient_id: message.recipient_id,
+        read_at: message.read_at,
+        conversation_id: message.conversation_id
+      })) || [];
+      
+      return typedMessages;
     },
     enabled: !!conversationId && !!user,
   });
