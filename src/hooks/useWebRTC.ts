@@ -88,7 +88,7 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
       
       const { data: { token } } = await supabase.functions.invoke('get-token');
 
-      // Create signaling connection - using the SUPABASE_URL constant instead of accessing protected property
+      // Create signaling connection using the project ID directly
       const projectId = "qavxzwmkjpjbpbtxtoqb"; // Using the project ID directly from our Supabase config
       const url = `wss://${projectId}.supabase.co/functions/v1/signaling?room=${requestId}&clientId=${clientId.current}`;
       
@@ -217,7 +217,7 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
           sessionIntervalRef.current = null;
         }
         
-        // Log session data
+        // Log session data to console instead of trying to insert into a non-existent table
         const sessionData = {
           request_id: requestId,
           participant_role: role,
@@ -225,10 +225,25 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
           ended_at: new Date().toISOString(),
         };
         
+        console.log('Session ended, data:', sessionData);
+        
+        // Update teacher_connections or skill_help_requests status instead
         try {
-          await supabase.from('session_logs').insert(sessionData);
+          if (role === 'teacher') {
+            await supabase
+              .from('teacher_connections')
+              .update({ status: 'disconnected' })
+              .eq('request_id', requestId)
+              .eq('teacher_id', await getCurrentUserId());
+          } else {
+            await supabase
+              .from('skill_help_requests')
+              .update({ status: 'completed' })
+              .eq('id', requestId)
+              .eq('learner_id', await getCurrentUserId());
+          }
         } catch (error) {
-          console.error('Error logging session data:', error);
+          console.error('Error updating session status:', error);
         }
         
         // Reset remote stream
@@ -243,6 +258,12 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
         }));
         break;
     }
+  };
+
+  // Helper function to get current user ID
+  const getCurrentUserId = async (): Promise<string> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id || '';
   };
 
   // Send message through signaling server
@@ -417,7 +438,7 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
       window.clearInterval(sessionIntervalRef.current);
       sessionIntervalRef.current = null;
       
-      // Log session data if we were connected
+      // Log session data to console instead of trying to insert into a non-existent table
       if (state.connectionStatus === 'connected') {
         const sessionData = {
           request_id: requestId,
@@ -426,11 +447,27 @@ export const useWebRTC = (requestId: string, role: 'teacher' | 'learner') => {
           ended_at: new Date().toISOString(),
         };
         
-        try {
-          supabase.from('session_logs').insert(sessionData);
-        } catch (error) {
-          console.error('Error logging session data:', error);
-        }
+        console.log('Session ended, data:', sessionData);
+
+        // Update the appropriate tables based on the user's role
+        // This is done asynchronously and we don't need to await it
+        getCurrentUserId().then(userId => {
+          if (role === 'teacher') {
+            supabase
+              .from('teacher_connections')
+              .update({ status: 'disconnected' })
+              .eq('request_id', requestId)
+              .eq('teacher_id', userId);
+          } else {
+            supabase
+              .from('skill_help_requests')
+              .update({ status: 'completed' })
+              .eq('id', requestId)
+              .eq('learner_id', userId);
+          }
+        }).catch(error => {
+          console.error('Error updating session status:', error);
+        });
       }
     }
   };
