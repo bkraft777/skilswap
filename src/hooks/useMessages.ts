@@ -14,7 +14,7 @@ export interface Message {
   conversation_id: string;
 }
 
-// Define a typed fetch function
+// Create a standalone function with explicit return type
 const fetchMessagesForConversation = async (conversationId: string): Promise<Message[]> => {
   const { data, error } = await supabase
     .from('messages')
@@ -30,8 +30,8 @@ export const useMessages = (conversationId: string) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  // Use explicit typing for the query
-  const { data: messages, isLoading } = useQuery({
+  // Use the function reference directly to avoid complex type inference
+  const messageQuery = useQuery({
     queryKey: ['messages', conversationId],
     queryFn: () => fetchMessagesForConversation(conversationId),
     enabled: !!conversationId && !!user,
@@ -59,8 +59,8 @@ export const useMessages = (conversationId: string) => {
   });
 
   return {
-    messages,
-    isLoading,
+    messages: messageQuery.data,
+    isLoading: messageQuery.isLoading,
     sendMessage,
   };
 };
