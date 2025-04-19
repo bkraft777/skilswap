@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 const AdminDashboard = () => {
   const { toast } = useToast();
+  const [processingId, setProcessingId] = useState<string | null>(null);
   
   const { data: applications, isLoading, error, refetch } = useQuery({
     queryKey: ['teacherApplications'],
@@ -25,12 +27,21 @@ const AdminDashboard = () => {
 
   const handleApplicationUpdate = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      const { error } = await supabase
+      setProcessingId(id);
+      console.log(`Starting approval process for application ${id}, setting status to ${status}`);
+      
+      // Update the application status in the database
+      const { error: updateError } = await supabase
         .from('teacher_applications')
         .update({ status })
         .eq('id', id);
 
-      if (error) throw error;
+      if (updateError) {
+        console.error('Error updating application status:', updateError);
+        throw updateError;
+      }
+      
+      console.log(`Successfully updated application ${id} status to ${status}`);
 
       // Also add user to profiles table if they don't exist already
       if (status === 'approved') {
@@ -48,22 +59,31 @@ const AdminDashboard = () => {
           // Update profile with expertise if needed
           if (profileData) {
             console.log('Updating existing profile with skills:', application.expertise);
-            await supabase
+            const { error: profileUpdateError } = await supabase
               .from('profiles')
               .update({ 
                 skills: application.expertise 
               })
               .eq('id', application.user_id);
+              
+            if (profileUpdateError) {
+              console.error('Error updating profile skills:', profileUpdateError);
+              // Continue execution - we don't want to fail the entire process if just the profile update fails
+            }
           }
           
           // For debugging: Verify the update happened
-          const { data: updatedProfile } = await supabase
+          const { data: updatedProfile, error: verifyError } = await supabase
             .from('profiles')
             .select('skills')
             .eq('id', application.user_id)
             .single();
             
-          console.log('Updated profile:', updatedProfile);
+          if (verifyError) {
+            console.error('Error verifying profile update:', verifyError);
+          } else {
+            console.log('Updated profile:', updatedProfile);
+          }
         }
       }
 
@@ -72,16 +92,13 @@ const AdminDashboard = () => {
         description: `Teacher application ${status} successfully.`,
       });
       
-      // Update local state immediately for a better UX
-      // This ensures the badge updates right away
-      if (applications) {
-        const updatedApplications = applications.map(app => 
-          app.id === id ? { ...app, status } : app
-        );
-        // Force a refresh of the UI
-        refetch();
-      }
+      // Immediately refetch to update the UI with fresh data
+      await refetch();
+      
+      setProcessingId(null);
     } catch (error: any) {
+      setProcessingId(null);
+      console.error('Error in handleApplicationUpdate:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -149,17 +166,19 @@ const AdminDashboard = () => {
                       <Button
                         onClick={() => handleApplicationUpdate(application.id, 'approved')}
                         className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                        disabled={processingId === application.id}
                       >
                         <CheckCircle className="h-4 w-4" />
-                        Approve
+                        {processingId === application.id ? 'Processing...' : 'Approve'}
                       </Button>
                       <Button
                         variant="destructive"
                         onClick={() => handleApplicationUpdate(application.id, 'rejected')}
                         className="flex items-center gap-2"
+                        disabled={processingId === application.id}
                       >
                         <XCircle className="h-4 w-4" />
-                        Reject
+                        {processingId === application.id ? 'Processing...' : 'Reject'}
                       </Button>
                     </div>
                   )}

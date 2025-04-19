@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/components/ui/use-toast';
+import { useEffect } from 'react';
 
 type Teacher = {
   name: string;
@@ -10,7 +12,9 @@ type Teacher = {
 };
 
 const TeacherStats = () => {
-  const { data: teachers, isLoading, error } = useQuery({
+  const { toast } = useToast();
+  
+  const { data: teachers, isLoading, error, refetch } = useQuery({
     queryKey: ['availableTeachers'],
     queryFn: async () => {
       console.log('Fetching available teachers');
@@ -23,15 +27,32 @@ const TeacherStats = () => {
       
       console.log('Featured teachers:', featuredTeachers);
       
+      if (featuredError) {
+        console.error('Error fetching featured teachers:', featuredError);
+        toast({
+          title: "Error",
+          description: "Failed to load featured teachers. Please try again.",
+          variant: "destructive",
+        });
+      }
+      
       // Get from teacher_applications table where status is approved
-      const { data: applicationTeachers, error } = await supabase
+      const { data: applicationTeachers, error: appError } = await supabase
         .from('teacher_applications')
-        .select('full_name, expertise, user_id')
+        .select('full_name, expertise, user_id, status')
         .eq('status', 'approved');
       
-      console.log('Approved application teachers:', applicationTeachers);
+      console.log('Approved application teachers query result:', applicationTeachers);
       
-      if (error) throw error;
+      if (appError) {
+        console.error('Error fetching approved teachers:', appError);
+        toast({
+          title: "Error",
+          description: "Failed to load approved teachers. Please try again.",
+          variant: "destructive",
+        });
+        throw appError;
+      }
       
       // Combine both sources of teachers
       const allTeachers: Teacher[] = [];
@@ -46,10 +67,13 @@ const TeacherStats = () => {
       
       // Add approved application teachers
       if (applicationTeachers && applicationTeachers.length > 0) {
+        console.log(`Found ${applicationTeachers.length} approved teachers from applications`);
         allTeachers.push(...applicationTeachers.map(teacher => ({
           name: teacher.full_name,
           skills: teacher.expertise
         })));
+      } else {
+        console.log('No approved teachers found in applications');
       }
       
       console.log('Combined teachers (before deduplication):', allTeachers);
@@ -65,6 +89,11 @@ const TeacherStats = () => {
     // Refresh every 5 seconds to ensure fresh data
     refetchInterval: 5000
   });
+
+  // Force an initial refetch on component mount to ensure data is fresh
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   if (isLoading) return <TeacherListSkeleton />;
   if (error) return <div className="text-red-500">Error loading teachers</div>;
