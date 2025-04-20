@@ -17,15 +17,30 @@ export const TeacherCard = ({ teacher, onClick }: TeacherCardProps) => {
     isNative() ? 'touch-manipulation active:opacity-70' : ''
   }`;
 
+  // Prevent default touch behavior in native apps to avoid double-triggering
+  const handleTouch = (e: React.TouchEvent) => {
+    if (isNative()) {
+      // Prevent default only in native environment to avoid scroll issues
+      e.preventDefault();
+      console.log('Touch event on teacher:', displayName);
+    }
+  };
+
   return (
     <div 
       className={cardClasses}
       onClick={onClick}
-      onTouchStart={() => console.log('Touch start on teacher:', displayName)}
-      onTouchEnd={() => console.log('Touch end on teacher:', displayName)}
+      onTouchStart={handleTouch}
+      onTouchEnd={handleTouch}
       role="button"
       aria-label={`Connect with ${displayName}`}
       tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <p className="font-medium break-words">{displayName}</p>
       {teacher.skills && teacher.skills.length > 0 ? (

@@ -5,7 +5,12 @@ import { Capacitor } from '@capacitor/core';
  * Checks if the app is running in a native environment
  */
 export const isNative = () => {
-  return Capacitor.isNativePlatform();
+  try {
+    return Capacitor.isNativePlatform();
+  } catch (error) {
+    console.error('Error checking native platform:', error);
+    return false;
+  }
 };
 
 /**
@@ -13,7 +18,12 @@ export const isNative = () => {
  * @returns 'ios' | 'android' | 'web'
  */
 export const getPlatform = () => {
-  return Capacitor.getPlatform();
+  try {
+    return Capacitor.getPlatform();
+  } catch (error) {
+    console.error('Error getting platform:', error);
+    return 'web';
+  }
 };
 
 /**
@@ -34,6 +44,17 @@ export const isAndroid = () => {
  * Initializes capacitor plugins and configurations
  */
 export const initializeCapacitor = () => {
-  // This function can be expanded later to initialize specific plugins
-  console.log('Capacitor initialized on platform:', getPlatform());
+  try {
+    // This function can be expanded later to initialize specific plugins
+    console.log('Capacitor initialized on platform:', getPlatform());
+    
+    // Set up any platform-specific configurations
+    if (isIOS()) {
+      // iOS-specific initializations
+    } else if (isAndroid()) {
+      // Android-specific initializations
+    }
+  } catch (error) {
+    console.error('Failed to initialize Capacitor:', error);
+  }
 };
