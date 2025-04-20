@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,6 @@ const HeroSection = () => {
 
   return (
     <div className="relative overflow-hidden bg-white">
-      {/* Background gradient circles */}
       <div className="absolute -top-20 -right-20 w-64 h-64 gradient-circle opacity-20 animate-rotate-gradient"></div>
       <div className="absolute -bottom-32 -left-20 w-80 h-80 gradient-circle opacity-20 animate-rotate-gradient"></div>
       
@@ -61,7 +59,7 @@ const HeroSection = () => {
                   </>
                 ) : (
                   <>
-                    Join SkilSwap Now
+                    Sign In/Register
                     <ArrowRight className="h-5 w-5" />
                   </>
                 )}
@@ -94,4 +92,3 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
-
