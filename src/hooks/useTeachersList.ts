@@ -4,6 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/components/ui/use-toast';
 import { Teacher } from '@/types/teacher-stats';
 
+// Hardcoded username mappings
+const USER_NAME_MAPPINGS: Record<string, string> = {
+  'userdf30febe': 'Bernie72',
+  'userdf30febe': 'Peg55'
+};
+
 export const useTeachersList = () => {
   const { toast } = useToast();
 
@@ -85,10 +91,14 @@ export const useTeachersList = () => {
       if (applicationTeachers && applicationTeachers.length > 0) {
         console.log(`Found ${applicationTeachers.length} approved teachers from applications`);
         allTeachers.push(...applicationTeachers.map(teacher => {
-          // Get username from the profiles map if available
-          const username = userIdToUsername.get(teacher.user_id);
+          // Check if there's a hardcoded username mapping, otherwise use the default logic
+          const mappedUsername = USER_NAME_MAPPINGS[teacher.user_id] || 
+            userIdToUsername.get(teacher.user_id) || 
+            teacher.full_name || 
+            `Teacher-${teacher.user_id.substring(0, 4)}`;
+          
           return {
-            name: username || teacher.full_name || `Teacher-${teacher.user_id.substring(0, 4)}`,
+            name: mappedUsername,
             skills: teacher.expertise,
             id: teacher.user_id
           };
@@ -103,11 +113,15 @@ export const useTeachersList = () => {
         // Only add profiles that have skills and a username
         allTeachers.push(...profilesWithSkills
           .filter(profile => profile.skills && profile.skills.length > 0 && profile.username)
-          .map(profile => ({
-            name: profile.username,
-            skills: profile.skills || [],
-            id: profile.id
-          }))
+          .map(profile => {
+            // Check if there's a hardcoded username mapping
+            const mappedUsername = USER_NAME_MAPPINGS[profile.id] || profile.username;
+            return {
+              name: mappedUsername,
+              skills: profile.skills || [],
+              id: profile.id
+            };
+          })
         );
       }
       
@@ -124,3 +138,4 @@ export const useTeachersList = () => {
     refetchInterval: 5000
   });
 };
+
