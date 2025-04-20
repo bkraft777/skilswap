@@ -1,6 +1,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Teacher } from '@/types/teacher-stats';
+import { isNative } from '@/integrations/capacitor';
 
 interface TeacherCardProps {
   teacher: Teacher;
@@ -10,10 +11,15 @@ interface TeacherCardProps {
 export const TeacherCard = ({ teacher, onClick }: TeacherCardProps) => {
   // Format the display name - prioritize username and make it look clean
   const displayName = teacher.name || 'Unknown Teacher';
+  
+  // Add additional mobile-specific classes when running in a native app
+  const cardClasses = `p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors active:bg-gray-100 ${
+    isNative() ? 'touch-manipulation active:opacity-70' : ''
+  }`;
 
   return (
     <div 
-      className="p-3 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors active:bg-gray-100"
+      className={cardClasses}
       onClick={onClick}
       onTouchStart={() => console.log('Touch start on teacher:', displayName)}
       onTouchEnd={() => console.log('Touch end on teacher:', displayName)}
