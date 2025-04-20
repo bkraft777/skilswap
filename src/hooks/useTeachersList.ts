@@ -29,19 +29,10 @@ export const useTeachersList = () => {
         });
       }
       
-      // Get from teacher_applications table where status is approved and join with profiles to get usernames
+      // Get approved teacher applications
       const { data: applicationTeachers, error: appError } = await supabase
         .from('teacher_applications')
-        .select(`
-          id, 
-          full_name,
-          expertise,
-          user_id,
-          status,
-          profiles!inner (
-            username
-          )
-        `)
+        .select('id, full_name, expertise, user_id, status')
         .eq('status', 'approved');
       
       console.log('Approved application teachers query result:', applicationTeachers);
@@ -56,7 +47,7 @@ export const useTeachersList = () => {
         throw appError;
       }
       
-      // Get profiles with skills
+      // Get profiles with usernames and skills in a separate query
       const { data: profilesWithSkills, error: profilesError } = await supabase
         .from('profiles')
         .select('id, username, skills')
@@ -80,14 +71,28 @@ export const useTeachersList = () => {
         })));
       }
       
-      // Add approved application teachers with their usernames
+      // Create a map of user_id to username from profiles for quick lookups
+      const userIdToUsername = new Map();
+      if (profilesWithSkills && profilesWithSkills.length > 0) {
+        profilesWithSkills.forEach(profile => {
+          if (profile.username) {
+            userIdToUsername.set(profile.id, profile.username);
+          }
+        });
+      }
+      
+      // Add approved application teachers with usernames if available
       if (applicationTeachers && applicationTeachers.length > 0) {
         console.log(`Found ${applicationTeachers.length} approved teachers from applications`);
-        allTeachers.push(...applicationTeachers.map(teacher => ({
-          name: teacher.profiles?.username || teacher.full_name || `Teacher-${teacher.user_id.substring(0, 4)}`,
-          skills: teacher.expertise,
-          id: teacher.user_id
-        })));
+        allTeachers.push(...applicationTeachers.map(teacher => {
+          // Get username from the profiles map if available
+          const username = userIdToUsername.get(teacher.user_id);
+          return {
+            name: username || teacher.full_name || `Teacher-${teacher.user_id.substring(0, 4)}`,
+            skills: teacher.expertise,
+            id: teacher.user_id
+          };
+        }));
       } else {
         console.log('No approved teachers found in applications');
       }
