@@ -75,10 +75,38 @@ export const useTeacherApplications = () => {
             }
           } else {
             console.log('Creating new profile with skills:', application.expertise);
+            
+            // Generate a username based on email or full name
+            let username = '';
+            if (application.email && application.email.includes('@')) {
+              // Use email prefix as username base
+              username = application.email.split('@')[0];
+            } else if (application.full_name) {
+              // Use full name as username base (remove spaces)
+              username = application.full_name.toLowerCase().replace(/\s+/g, '');
+            } else {
+              // Default to 'user' + random string
+              username = 'user' + Math.random().toString(36).substring(2, 10);
+            }
+            
+            // Clean the username to ensure it only contains allowed characters
+            username = username.replace(/[^a-zA-Z0-9]/g, '');
+            
+            // Ensure it's between 3-30 characters
+            if (username.length < 3) {
+              username = username + Math.random().toString(36).substring(2, 5);
+            }
+            if (username.length > 30) {
+              username = username.substring(0, 30);
+            }
+            
+            console.log('Generated username:', username);
+            
             const { data: newProfile, error: profileInsertError } = await supabase
               .from('profiles')
               .insert({ 
                 id: application.user_id,
+                username: username,
                 skills: application.expertise 
               })
               .select();
