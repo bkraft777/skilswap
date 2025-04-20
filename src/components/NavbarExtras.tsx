@@ -25,7 +25,7 @@ const NavbarExtras = () => {
         <Button variant="default" size="sm" asChild>
           <Link to="/auth">
             <LogIn className="h-4 w-4" />
-            <span>Sign In</span>
+            <span>Sign in/Register</span>
           </Link>
         </Button>
       )}
