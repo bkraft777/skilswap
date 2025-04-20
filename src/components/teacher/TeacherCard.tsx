@@ -8,10 +8,8 @@ interface TeacherCardProps {
 }
 
 export const TeacherCard = ({ teacher, onClick }: TeacherCardProps) => {
-  // Get the part of the email before the @ symbol
-  const displayName = teacher.name?.includes('@') 
-    ? teacher.name.split('@')[0] 
-    : teacher.name;
+  // Format the display name - prioritize username and make it look clean
+  const displayName = teacher.name || 'Unknown Teacher';
 
   return (
     <div 
