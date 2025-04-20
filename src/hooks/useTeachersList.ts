@@ -29,10 +29,19 @@ export const useTeachersList = () => {
         });
       }
       
-      // Get from teacher_applications table where status is approved
+      // Get from teacher_applications table where status is approved and join with profiles to get usernames
       const { data: applicationTeachers, error: appError } = await supabase
         .from('teacher_applications')
-        .select('id, full_name, expertise, user_id, status')
+        .select(`
+          id, 
+          full_name,
+          expertise,
+          user_id,
+          status,
+          profiles!inner (
+            username
+          )
+        `)
         .eq('status', 'approved');
       
       console.log('Approved application teachers query result:', applicationTeachers);
@@ -71,11 +80,11 @@ export const useTeachersList = () => {
         })));
       }
       
-      // Add approved application teachers
+      // Add approved application teachers with their usernames
       if (applicationTeachers && applicationTeachers.length > 0) {
         console.log(`Found ${applicationTeachers.length} approved teachers from applications`);
         allTeachers.push(...applicationTeachers.map(teacher => ({
-          name: teacher.full_name,
+          name: teacher.profiles?.username || teacher.full_name || `Teacher-${teacher.user_id.substring(0, 4)}`,
           skills: teacher.expertise,
           id: teacher.user_id
         })));
@@ -89,9 +98,7 @@ export const useTeachersList = () => {
         allTeachers.push(...profilesWithSkills
           .filter(profile => profile.skills && profile.skills.length > 0)
           .map(profile => ({
-            name: profile.username || 
-                   (applicationTeachers?.find(t => t.user_id === profile.id)?.full_name) || 
-                   `Teacher ${profile.id.substring(0, 4)}`,
+            name: profile.username || `Teacher-${profile.id.substring(0, 4)}`,
             skills: profile.skills || [],
             id: profile.id
           }))
