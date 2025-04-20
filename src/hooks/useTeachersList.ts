@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from '@/components/ui/use-toast';
@@ -7,7 +6,7 @@ import { Teacher } from '@/types/teacher-stats';
 // Hardcoded username mappings
 const USER_NAME_MAPPINGS: Record<string, string> = {
   'userdf30febe': 'Bernie72',
-  'userdf30febe': 'Peg55'
+  'usera87cdeff': 'Peg55'  // Changed the second key to be unique
 };
 
 export const useTeachersList = () => {
@@ -138,4 +137,3 @@ export const useTeachersList = () => {
     refetchInterval: 5000
   });
 };
-
