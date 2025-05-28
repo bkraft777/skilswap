@@ -11,6 +11,7 @@ import HowItWorks from "./pages/HowItWorks";
 import Skills from "./pages/Skills";
 import Community from "./pages/Community";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import EditProfile from "./pages/EditProfile";
 import Profile from "./pages/Profile";
 import BecomeTeacher from "./pages/BecomeTeacher";
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/skills" element={<Skills />} />
           <Route path="/community" element={<Community />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/admin" element={
             <ProtectedRoute>

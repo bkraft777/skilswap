@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,7 +5,7 @@ import * as z from 'zod';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
@@ -54,6 +53,8 @@ const AuthForm = () => {
   const onAuthSubmit = async (values: AuthFormValues) => {
     setIsLoading(true);
     try {
+      console.log('Attempting auth:', isSignUp ? 'signup' : 'signin');
+      
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email: values.email,
@@ -70,8 +71,10 @@ const AuthForm = () => {
           password: values.password,
         });
         if (error) throw error;
+        console.log('Sign in successful');
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -85,8 +88,9 @@ const AuthForm = () => {
   const onResetSubmit = async (values: ResetFormValues) => {
     setIsLoading(true);
     try {
+      console.log('Sending password reset email');
       const { error } = await supabase.auth.resetPasswordForEmail(values.email, {
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
       toast({
@@ -96,6 +100,7 @@ const AuthForm = () => {
       setIsResetMode(false);
       resetForm.reset();
     } catch (error: any) {
+      console.error('Password reset error:', error);
       toast({
         title: "Error",
         description: error.message,
