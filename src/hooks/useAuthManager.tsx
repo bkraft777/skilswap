@@ -8,9 +8,16 @@ export const useAuthManager = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const authListenerRef = useRef<any>(null);
+  const isInitialized = useRef(false);
 
   useEffect(() => {
+    // Prevent multiple initializations
+    if (isInitialized.current) {
+      return;
+    }
+    
     console.log('Initializing centralized auth manager');
+    isInitialized.current = true;
     
     // Cleanup any existing listener
     if (authListenerRef.current) {
@@ -70,6 +77,7 @@ export const useAuthManager = () => {
         authListenerRef.current.subscription.unsubscribe();
         authListenerRef.current = null;
       }
+      isInitialized.current = false;
     };
   }, []);
 

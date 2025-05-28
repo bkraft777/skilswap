@@ -54,11 +54,6 @@ const ResetPassword = () => {
       if (!accessToken || !refreshToken || type !== 'recovery') {
         console.log('Missing or invalid reset parameters');
         setIsValidToken(false);
-        toast({
-          title: "Invalid Reset Link",
-          description: "This password reset link is invalid or has expired.",
-          variant: "destructive",
-        });
         return;
       }
 
@@ -147,7 +142,7 @@ const ResetPassword = () => {
             <p className="text-gray-600 mb-6">
               This password reset link is invalid or has expired. Please request a new one.
             </p>
-            <Button onClick={() => navigate('/auth')} className="w-full">
+            <Button onClick={() => navigate('/auth', { replace: true })} className="w-full">
               Back to Sign In
             </Button>
           </div>

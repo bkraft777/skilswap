@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import AuthForm from '@/components/auth/AuthForm';
 import { useToast } from '@/hooks/use-toast';
 import { UsernameSetupDialog } from '@/components/auth/UsernameSetupDialog';
@@ -28,12 +29,12 @@ const Auth = () => {
           if (!profile?.username) {
             setShowUsernameSetup(true);
           } else {
-            navigate('/');
+            navigate('/', { replace: true });
           }
         } catch (error) {
           console.error('Error checking user profile:', error);
           // If there's an error, just navigate to home
-          navigate('/');
+          navigate('/', { replace: true });
         }
       };
 
@@ -67,7 +68,7 @@ const Auth = () => {
         isOpen={showUsernameSetup} 
         onComplete={() => {
           setShowUsernameSetup(false);
-          navigate('/');
+          navigate('/', { replace: true });
         }} 
       />
     </div>
