@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,6 +59,9 @@ const AuthForm = () => {
         const { error } = await supabase.auth.signUp({
           email: values.email,
           password: values.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth`
+          }
         });
         if (error) throw error;
         toast({
@@ -72,7 +74,13 @@ const AuthForm = () => {
           password: values.password,
         });
         if (error) throw error;
-        console.log('Sign in successful');
+        console.log('Sign in successful, auth state will update automatically');
+        
+        // Show success message but don't navigate - let the Auth component handle redirection
+        toast({
+          title: "Welcome back!",
+          description: "Signing you in...",
+        });
       }
     } catch (error: any) {
       console.error('Auth error:', error);

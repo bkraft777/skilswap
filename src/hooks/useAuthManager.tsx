@@ -9,10 +9,12 @@ export const useAuthManager = () => {
   const [loading, setLoading] = useState(true);
   const authListenerRef = useRef<any>(null);
   const isInitialized = useRef(false);
+  const initPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     // Prevent multiple initializations
-    if (isInitialized.current) {
+    if (isInitialized.current || initPromiseRef.current) {
+      console.log('Auth manager already initialized or initializing, skipping');
       return;
     }
     
@@ -27,7 +29,29 @@ export const useAuthManager = () => {
 
     const initializeAuth = async () => {
       try {
-        // Get initial session
+        // Set up auth state listener FIRST
+        console.log('Setting up auth state listener');
+        authListenerRef.current = supabase.auth.onAuthStateChange((event, newSession) => {
+          console.log('Auth state changed:', event, newSession ? 'Session present' : 'No session');
+          
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          
+          // Handle specific auth events
+          if (event === 'SIGNED_OUT') {
+            console.log('User signed out, clearing auth state');
+          } else if (event === 'SIGNED_IN') {
+            console.log('User signed in successfully');
+          } else if (event === 'TOKEN_REFRESHED') {
+            console.log('Auth token refreshed');
+          } else if (event === 'PASSWORD_RECOVERY') {
+            console.log('Password recovery initiated');
+          }
+          
+          setLoading(false);
+        });
+
+        // THEN get initial session
         console.log('Getting initial session');
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
@@ -45,30 +69,8 @@ export const useAuthManager = () => {
       }
     };
 
-    // Set up auth state listener
-    console.log('Setting up auth state listener');
-    authListenerRef.current = supabase.auth.onAuthStateChange((event, newSession) => {
-      console.log('Auth state changed:', event, newSession ? 'Session present' : 'No session');
-      
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      
-      // Handle specific auth events
-      if (event === 'SIGNED_OUT') {
-        console.log('User signed out, clearing auth state');
-      } else if (event === 'SIGNED_IN') {
-        console.log('User signed in successfully');
-      } else if (event === 'TOKEN_REFRESHED') {
-        console.log('Auth token refreshed');
-      } else if (event === 'PASSWORD_RECOVERY') {
-        console.log('Password recovery initiated');
-      }
-      
-      setLoading(false);
-    });
-
-    // Initialize auth state
-    initializeAuth();
+    // Store the initialization promise
+    initPromiseRef.current = initializeAuth();
 
     // Cleanup function
     return () => {
@@ -78,6 +80,7 @@ export const useAuthManager = () => {
         authListenerRef.current = null;
       }
       isInitialized.current = false;
+      initPromiseRef.current = null;
     };
   }, []);
 
