@@ -1,8 +1,9 @@
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -11,22 +12,26 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to access this page",
-        });
-        navigate('/auth');
-      }
-    };
+  // Show loading spinner while auth state is being determined
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <LoadingSpinner message="Checking authentication..." />
+      </div>
+    );
+  }
 
-    checkAuth();
-  }, [navigate, toast]);
+  // Only check authentication after loading is complete
+  if (!user) {
+    toast({
+      title: "Authentication required",
+      description: "Please sign in to access this page",
+    });
+    navigate('/auth');
+    return null;
+  }
 
   return <>{children}</>;
 };
